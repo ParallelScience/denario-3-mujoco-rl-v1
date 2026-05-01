@@ -2,63 +2,52 @@
     "sub_tasks": [
         {
             "bullet_points": [
-                "Set a fixed random seed for NumPy, PyTorch, and the Gymnasium environment at the start of the script for reproducibility",
-                "Implement a Gymnasium wrapper that simulates actuator latency via a circular buffer of past actions; the delay parameter must be settable externally by the training loop at each step (not computed internally); expose the current delayed action for logging",
-                "Implement the curriculum latency schedule in the training loop: fixed 1-step delay for the first 100,000 steps, then stochastic Uniform(0, k) where k scales linearly from 1 to 3 over steps 100,000–500,000",
-                "Implement SAC with standard MLP actor/critic for Condition A (Baseline): standard state input, no latency handling beyond the wrapper",
-                "Implement SAC with History-MLP for Condition B: augment observations with the last k=3 actions stacked onto the state vector; standard MLP actor/critic",
-                "Implement SAC with GRU-augmented actor/critic for Condition C: GRU encoder processes observation history to produce a latent state for the policy and value networks",
-                "Implement a standard replay buffer for Conditions A and B storing (s, a, r, s') transitions",
-                "Implement a sequence-based replay buffer for Condition C: store full episode trajectories and sample fixed-length subsequences of length L=20 at training time; initialize GRU hidden state to zero at the start of each sampled subsequence (stateless TBPTT)",
-                "Apply gradient clipping for all conditions, especially GRU",
-                "Run all three conditions sequentially (not in parallel) to avoid GPU memory contention",
-                "Conduct periodic evaluation every 10,000 steps during training; record episode returns and step counts",
-                "Save all training results (learning curves, episode returns, step counts) to disk as npz files",
-                "Save model checkpoints for all three conditions (actor and critic networks) at the end of training using torch.save with filenames clearly identifying the condition (A, B, or C)",
-                "Print key training statistics every 10,000 steps without verbose per-step output"
+                "Set a fixed random seed (seed=42) for environment creation, SAC initialization, and numpy/torch random state; print the seed used at the start",
+                "Implement a gymnasium.Wrapper that simulates actuator latency via a circular action buffer, with a set_delay(n) method to change delay during training; this wrapper should work standalone (no observation augmentation) for Condition A",
+                "Implement a second wrapper (subclassing the latency wrapper) that augments the observation by concatenating the last k actions to the state vector, parameterized by k; use k=3 for Condition B and k=10 for Condition C",
+                "Wrap each environment with SB3's Monitor wrapper (after the latency/history wrapper) before passing to the SAC constructor, so episode rewards and lengths are automatically recorded",
+                "Print the observation space shapes for all three conditions before training begins to verify correct augmentation (17-dim for A, 35-dim for B, 77-dim for C)",
+                "Implement a SB3 BaseCallback that applies the curriculum latency schedule: fixed 1-step delay for first 50,000 steps, then stochastic delay from Uniform(0,3) for steps 50,000–100,000; the callback must access the underlying latency wrapper through the SB3 vectorized environment unwrapping chain (e.g., iterating through model.env.envs[0] wrapper chain) to call set_delay(...) at each episode start",
+                "Train Condition A (Baseline): SAC with MlpPolicy on the latency-only wrapped env, device='cuda', 100,000 total timesteps, verbose=0",
+                "Train Condition B (History-MLP k=3): SAC with MlpPolicy on the latency+history-k3 wrapped env, device='cuda', 100,000 total timesteps, verbose=0",
+                "Train Condition C (Extended-History k=10): SAC with MlpPolicy on the latency+history-k10 wrapped env, device='cuda', 100,000 total timesteps, verbose=0",
+                "After training each condition, extract episode returns and timesteps from the Monitor logs and save them to the data directory as NPZ or CSV files",
+                "Save all three trained models to the data directory",
+                "Print key training statistics for each condition: final mean episode return (last 10 episodes), total number of episodes completed"
             ],
-            "sub_task": "Implement and train all three SAC conditions (Baseline MLP, History-MLP, GRU-SAC) on HalfCheetah-v4 under curriculum latency",
+            "sub_task": "Implement environment wrappers and train all three SAC conditions",
             "sub_task_agent": "engineer",
             "code_execution_timeout": 1800
         },
         {
             "bullet_points": [
-                "Load the trained model checkpoints saved in Step 1",
-                "Run robustness evaluation using freshly instantiated environments (not the training wrapper) with a fixed latency wrapper set to each target latency level: 0, 1, 2, 3, and 5 steps",
-                "Run 10 evaluation episodes per latency level per condition with action stochasticity disabled (deterministic policy)",
-                "For Condition C (GRU-SAC), reset the GRU hidden state to zero at the start of each evaluation episode to match the stateless TBPTT training assumption",
-                "Extract mean forward velocity from the MuJoCo environment's info dictionary (x_velocity field); if unavailable, compute from consecutive x-position differences",
-                "Record mean episode return and mean forward velocity for each condition at each fixed latency level",
-                "Save all robustness evaluation results to disk as npz or csv files",
-                "Print a detailed summary table of robustness results for all conditions and latency levels"
+                "Load all three saved models from the data directory",
+                "For each condition, reconstruct the appropriate evaluation environment with the matching wrapper: latency-only for Condition A, latency+history-k3 for Condition B, latency+history-k10 for Condition C — ensuring observation space matches what each model was trained on",
+                "For each model and each fixed latency level (0, 1, 2, 3, 5 steps): set the delay on the evaluation environment, run 5 evaluation episodes using model.predict(obs, deterministic=True), record mean episode return and mean forward velocity; extract x_velocity robustly from the info dict (checking both direct info['x_velocity'] and nested info['final_info'] with a fallback to avoid NaN results)",
+                "Save the robustness evaluation results (mean return and mean velocity per condition per latency) to the data directory as a CSV file",
+                "Load the training curve data saved in Step 1",
+                "Generate a single multi-panel figure (3 panels) with: Panel 1: Learning curves — smoothed episode return vs training timesteps for all 3 conditions, with legend and grid; Panel 2: Robustness profiles — mean episode return vs latency level (0,1,2,3,5 steps) for all 3 conditions, with markers, legend and grid; Panel 3: Mean forward velocity vs latency level for all 3 conditions, with markers, legend and grid",
+                "Save the figure as a high-resolution PNG (dpi>=300) in the data directory",
+                "Print all evaluation results in a detailed tabular format: condition name, latency level, mean return, mean velocity"
             ],
-            "sub_task": "Run post-training robustness evaluation for all three conditions across fixed latency levels",
+            "sub_task": "Evaluate trained models at multiple latency levels and generate all plots",
             "sub_task_agent": "engineer",
-            "code_execution_timeout": 1800
+            "code_execution_timeout": 600
         },
         {
             "bullet_points": [
-                "Load all training curves and robustness evaluation results from disk",
-                "Plot 1: Multi-panel learning curve figure showing cumulative episode return vs. environment steps for all three conditions (A, B, C) on the same axes; apply exponential moving average smoothing with alpha=0.05, showing both raw (faded) and smoothed curves; include a vertical dashed line marking the curriculum transition at 100,000 steps",
-                "Plot 2: Two-panel robustness figure combining (a) mean episode return vs. fixed latency level and (b) mean forward velocity vs. fixed latency level, for all three conditions side by side; share the x-axis (latency level: 0, 1, 2, 3, 5 steps)",
-                "Ensure all plots have clear labels (with units where appropriate), legends, grid lines, and informative titles; save at dpi>=300",
-                "Print a summary of key statistics: final mean return per condition, best return per condition, and performance at each latency level for all conditions"
+                "Summarize the experimental setup: three SAC conditions (Baseline/Condition A, History-MLP k=3/Condition B, Extended-History k=10/Condition C), HalfCheetah-v4, curriculum latency schedule (1-step fixed then stochastic Uniform(0,3)), 100,000 training steps, single seed (seed=42)",
+                "Explicitly note the observation space dimensionality for each condition (17-dim for A, 35-dim for B, 77-dim for C) and discuss how increased input dimensionality in Condition C may affect learning dynamics independently of temporal information content",
+                "Report and interpret the learning curves: compare convergence speed and final training returns across all three conditions, referencing the learning curves panel",
+                "Report and interpret the robustness profiles: how does mean episode return degrade as latency increases for each condition, which condition is most robust, referencing the robustness profile panel",
+                "Report and interpret the forward velocity profiles: does velocity track return, what does this reveal about locomotion quality under latency, referencing the velocity panel",
+                "Include all key quantitative results from the console output: final training returns, returns at each latency level (0,1,2,3,5), and velocities for all three conditions",
+                "Discuss whether action-history stacking (k=3) recovers performance lost to latency, and whether extended history (k=10) provides additional benefit",
+                "Discuss the baseline's degradation under increasing delay",
+                "Explicitly note the limitations of the single-seed PoC design: no error bars across seeds, 100k steps is well below SAC convergence for HalfCheetah (~12,000 return typically requires ~1M steps), and frame all results as preliminary/directional rather than statistically conclusive",
+                "Provide a concise conclusion summarizing the main findings and their implications for real-world robotic control under actuator latency"
             ],
-            "sub_task": "Generate all plots and visualizations from saved training and evaluation data",
-            "sub_task_agent": "engineer"
-        },
-        {
-            "bullet_points": [
-                "Summarize the training performance of all three conditions (A: Baseline, B: History-MLP, C: GRU-SAC) on HalfCheetah-v4 under the curriculum latency schedule, referencing the learning curve plot",
-                "Discuss convergence speed, final performance, and training stability differences between conditions",
-                "Analyze the robustness profile: how each condition performs across fixed latency levels (0, 1, 2, 3, 5 steps), noting which architecture generalizes best to out-of-distribution latencies (e.g., 5-step delay), referencing the robustness plot",
-                "Address the three key research questions explicitly: (1) Does action-history stacking recover performance lost to latency? (2) Does GRU provide further advantage over history stacking? (3) How does the baseline degrade as delay increases?",
-                "Include a dedicated paragraph comparing computational cost and implementation complexity of the three conditions (standard MLP vs. history-augmented MLP vs. GRU), discussing practical implications for real robotic deployment",
-                "Explicitly note the single-seed limitation and discuss how it affects reliability of conclusions, particularly for GRU-SAC which is most sensitive to initialization",
-                "Reference specific numerical results and plot filenames from Steps 1–3",
-                "Write in academic paper style suitable for a Results section"
-            ],
-            "sub_task": "Write the full Results section of the paper based on all experimental findings",
+            "sub_task": "Write the full Results section of the paper",
             "sub_task_agent": "researcher"
         }
     ]

@@ -12,10 +12,10 @@
 
 4. **Curriculum Latency Training**: Train all three conditions under an identical curriculum latency schedule to ensure a fair comparison of architectural robustness. Start with a fixed 1-step delay for the first 100,000 steps, then transition to a stochastic delay $\text{Uniform}(0, k)$ where $k$ scales linearly from 1 to 3 over the remaining 400,000 steps.
 
-5. **Experimental Rigor**: To ensure statistical significance, execute each condition across 5 independent random seeds. Monitor training performance using cumulative return and mean forward velocity.
+5. **Experimental Rigor**: To ensure statistical significance, run each condition with 1 random seed (proof-of-concept). Monitor training performance using cumulative return and mean forward velocity.
 
 6. **Evaluation Protocol**: Conduct periodic evaluations every 10,000 environment steps. During evaluation, disable stochasticity and test each agent against a range of fixed latencies (0, 1, 2, 3, and 5 steps). This "robustness profile" will measure how well each architecture generalizes to latencies both within and outside the training curriculum.
 
-7. **Data Aggregation and Analysis**: Aggregate evaluation metrics across all seeds to generate learning curves with shaded error bars (standard deviation). Document the performance gap between the baseline and the augmented architectures.
+7. **Data Aggregation and Analysis**: Generate learning curves for all three conditions. Document the performance gap between the baseline and the augmented architectures.
 
 8. **Comparative Analysis**: Analyze the results to answer the research questions: determine if explicit history stacking (Condition B) or learned temporal representations (Condition C) provide superior recovery of performance, and quantify the degradation of the baseline (Condition A) as latency increases.

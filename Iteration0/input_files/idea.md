@@ -1,3 +1,20 @@
-**Title: Action-History Augmentation for Robust Control in Humanoid-v4 Under Latency Constraints**
+**Title: Action-History Augmentation for Robust Control Under Actuator Latency**
 
-**Description:** This research evaluates the efficacy of explicit action-history stacking versus recurrent neural architectures in solving the non-Markovian control problem introduced by variable actuator latency in the 376-dim Humanoid-v4 environment. We augment the observation space with a sliding window of the $k$ most recent actions, providing the policy with the necessary inductive bias to distinguish between intrinsic physical dynamics and delayed control signals. To ensure convergence, we implement a curriculum-based delay schedule that gradually increases the variance of the injection window from a fixed 1-step latency to a stochastic distribution. The study compares a history-augmented MLP against a GRU-augmented SAC agent to determine if the additional temporal capacity of recurrent states provides a statistically significant improvement in forward velocity maintenance under high-dimensional stress. Performance is benchmarked by evaluating the cumulative return and the mean recovery time to steady-state velocity across 50 independent random seeds, ensuring statistical significance despite the inherent stochasticity of the MuJoCo physics engine. This approach isolates the impact of temporal awareness on stability, providing a clear baseline for robust locomotion in high-latency, high-dimensional robotics.
+**Description:** In real robotic systems, there is always actuator latency — control commands are applied with a delay, meaning the agent's current observation reflects a state that predates the most recent action. This breaks the Markov property and degrades policies trained under the standard zero-latency assumption. This research evaluates the efficacy of explicit **action-history stacking** versus a **GRU-augmented policy** for handling variable actuator latency in continuous-control locomotion.
+
+We use **HalfCheetah-v4** as the primary testbed — a relatively simple, fast-converging environment (no termination condition, dense velocity reward) that is well-suited for proof-of-concept work.
+
+Three conditions are compared using SAC:
+
+- **Condition A (Baseline)**: Standard SAC with zero-latency (Markovian) control.
+- **Condition B (History-MLP)**: Observation augmented with the last $k=3$ actions stacked onto the state vector. Standard MLP policy.
+- **Condition C (GRU-SAC)**: Policy uses a GRU to encode the observation history, giving the agent a learned temporal representation.
+
+All three are trained under a **curriculum latency schedule**: training starts with a fixed 1-step delay, then gradually introduces stochastic delays drawn from $\text{Uniform}(0, k)$ steps as training progresses.
+
+**Proof-of-concept setup**: 1 random seed, 500,000 environment steps per condition. Performance is measured by cumulative return and mean forward velocity at evaluation.
+
+The key questions:
+1. Does action-history stacking recover performance lost to latency?
+2. Does the GRU's additional temporal capacity provide a further advantage?
+3. How does the baseline (no latency handling) degrade as delay increases?

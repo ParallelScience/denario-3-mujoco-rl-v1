@@ -1,0 +1,16 @@
+The current analysis successfully demonstrates that action-history augmentation is a viable strategy for mitigating actuator latency, but the experimental design contains significant flaws that undermine the robustness of the conclusions.
+
+**Critical Weaknesses:**
+1. **The "Baseline" Failure:** The fact that Condition A (Baseline) failed to learn even at zero latency is a major red flag. This suggests the curriculum schedule was too aggressive or the training duration too short for the baseline to stabilize. Comparing a "broken" baseline to an augmented model is not a valid test of latency robustness; it is a test of which model is less sensitive to training instability.
+2. **Confounded Variables:** You correctly identified that Condition C (k=10) suffers from the "curse of dimensionality." However, by using a fixed-size MLP [256, 256] for all conditions, you have forced the network to process vastly different input spaces with the same capacity. The underperformance of Condition C is likely due to the input layer mismatch rather than the history length itself.
+3. **Evaluation Protocol:** The robustness evaluation shows identical returns across all latency levels for all conditions. This indicates that the evaluation is not sensitive to the latency levels tested, or the models have converged to a "safe" but low-performance gait that is invariant to the delay.
+
+**Actionable Recommendations for Future Iterations:**
+1. **Fix the Baseline:** You must establish a valid zero-latency baseline. Train a standard SAC agent on the *original* HalfCheetah-v4 (no latency, no curriculum) for 200k steps to ensure it reaches a stable, high-performance state. Use this as the "Gold Standard" for comparison.
+2. **Decouple Dimensionality from History:** To properly test the value of temporal context, use a consistent input size. For Condition B (k=3) and Condition C (k=10), pad the input vector with zeros or use a learned embedding layer to ensure the MLP input dimension is identical across all conditions. This isolates the effect of "history information" from "input layer size."
+3. **Refine the Curriculum:** The current curriculum is too disruptive. Instead of a hard switch at 50k steps, use a linear ramp-up of the probability of latency or the magnitude of the delay. This allows the policy to adapt gradually rather than collapsing under the sudden introduction of non-Markovian dynamics.
+4. **Statistical Rigor:** A single seed is insufficient for RL, where variance is high. You must run at least 3–5 seeds. Given the computational budget (RTX 6000), this is feasible and necessary to claim that the observed performance gap is systematic.
+5. **Simplify the Evaluation:** Since you are using SB3, leverage `EvalCallback` to track performance on a fixed, non-latency environment throughout training. This will tell you if the agent is losing its "base" locomotion ability while learning to handle latency.
+
+**Insight-Oriented Goal:**
+The next iteration should focus on the **"Latency-Robustness Trade-off."** Does the agent sacrifice peak performance (at 0-latency) to gain robustness (at 5-latency)? By comparing the "Gold Standard" (no latency) to your augmented models, you can quantify the "cost of robustness," which is a far more valuable scientific contribution than simply showing that an augmented model beats a broken baseline.

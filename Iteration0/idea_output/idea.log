@@ -1,0 +1,864 @@
+
+###### PROMPT BEGINS ########
+Human: 
+**Role**: You are a Senior Scientific Researcher.
+**Objective**: Based on the provided dataset description and potential previous ideas, generate 10 distinct, high-impact research ideas for a scientific project. 
+
+**Task**: 
+Generate 10 research ideas that could lead to meaningful scientific discovery. These ideas must be diverse in their approach to the data and must be different to previous existing ideas.
+
+**Operational Constraints**:
+- We are trying to sample the ideas space as widely as possible. Thus, if there are existing ideas, make the 10 ideas as different as possible from the existing ones.
+- The 10 ideas should also be as different from each other as possible.
+- **Conciseness**: Each idea should be 3-4 sentences max. Focus on the "Research Question," not the execution.
+- **No Methodology**: Do not include plans, code, or specific algorithms. Only state the *Research Objective*.
+- **Consistency**: The ideas must strictly adhere to the constraints and physical reality described in the data description.
+- **Zero Redundancy**: If two ideas feel similar, discard one and find a new scientific angle.
+- Each idea must consist of a title and a brief description of it.
+
+Data description:
+# Deep Reinforcement Learning on MuJoCo Continuous Control Benchmarks
+
+## Overview
+
+This project investigates novel reinforcement learning methods on standard MuJoCo continuous-control benchmarks from the Gymnasium library (gymnasium[mujoco], mujoco 3.8.0). MuJoCo provides physically realistic simulation of articulated robotic bodies, making it the standard testbed for evaluating deep RL algorithms on high-dimensional continuous action spaces.
+
+## Available Environments
+
+All standard MuJoCo Gymnasium environments are available:
+
+- **HalfCheetah-v4/v5** — 17-dim state, 6-dim action. Fast locomotion task for a 2D cheetah-like body. No termination condition. Dense reward based on forward velocity.
+- **Ant-v4/v5** — 27-dim state, 8-dim action. Ant locomotion in 3D. Episodes terminate if the ant falls over. Dense reward based on forward speed and control cost.
+- **Hopper-v4/v5** — 11-dim state, 3-dim action. Single-legged hopper. Terminates on falling. Requires balance and coordination.
+- **Walker2d-v4/v5** — 17-dim state, 6-dim action. Bipedal walker. Terminates on falling. Requires balance and forward locomotion.
+- **Humanoid-v4/v5** — 376-dim state, 17-dim action. Full humanoid body. High-dimensional, challenging exploration.
+- **Swimmer-v4/v5** — 8-dim state, 2-dim action. Underwater swimmer. Simple dynamics, no termination.
+- **Reacher-v4/v5** — 11-dim state, 2-dim action. 2-DOF arm reaching task. Sparse-ish reward.
+- **InvertedPendulum-v4/v5** — simple control baseline.
+
+## Hardware
+
+- NVIDIA RTX PRO 6000 Blackwell (96 GB VRAM), CUDA 13.0
+- PyTorch available at device='cuda'
+- 32 CPUs, 64 GB RAM
+- Parallel environment vectorization supported via gymnasium.vector
+
+## Standard Baselines
+
+For reference, well-known algorithms and their typical performance on these environments:
+- **SAC** (Soft Actor-Critic): state-of-the-art off-policy, HalfCheetah ~12,000 return, Ant ~5,000, Hopper ~3,500
+- **PPO**: on-policy, slightly lower sample efficiency
+- **TD3**: deterministic off-policy, strong on HalfCheetah
+- **DDPG**: original off-policy actor-critic
+
+## Research Directions of Interest
+
+Open questions in continuous-control RL include:
+- Sample efficiency improvements
+- Transfer learning and generalization across tasks
+- Incorporating physical priors or structure into policy/value networks
+- Reward shaping and curriculum learning
+- Multi-task and meta-learning
+- Safe RL / constraint satisfaction
+- Exploration strategies in high-dimensional spaces
+
+## File Paths
+
+No pre-existing data files. All experience is generated online via environment interaction.
+Environments instantiated as: `gymnasium.make('HalfCheetah-v4')` etc.
+
+
+
+
+
+
+
+
+Respond in the following format:
+
+\\begin{IDEAS}
+<IDEAS>
+\\end{IDEAS}
+
+In <IDEAS>, put the ideas you have generated. 
+
+###### PROMPT ENDS ########
+
+###### RESPONSE [model: gemini-3.1-flash-lite-preview] ########
+\begin{IDEAS}
+1. **Morphological Symmetry Breaking in Locomotion**
+Does the introduction of controlled physical asymmetries in the agent's body during training lead to more robust locomotion policies in uneven terrain? This research investigates whether symmetry-breaking forces the policy to develop generalized recovery behaviors rather than gait-specific patterns. The objective is to determine if "imperfect" robots achieve higher performance stability when transferred to standard symmetric environments.
+
+2. **Energy-Optimal Policy Manifolds**
+Can we redefine the reward objective to prioritize metabolic efficiency over raw velocity without sacrificing completion speed? This study explores the latent geometry of energy-efficient movement patterns in high-dimensional humanoid spaces. The goal is to discover if there exists a Pareto-optimal manifold that bridges the gap between maximum speed and minimal torque expenditure.
+
+3. **Intrinsic Curiosity via Proprioceptive Prediction**
+Instead of extrinsic rewards, can an agent learn complex locomotion solely by maximizing its ability to predict its own future proprioceptive state? This project tests whether state-space transition modeling acts as a sufficient unsupervised signal for high-dimensional motor control. The research objective is to decouple learning from external reward signals to facilitate discovery in sparse-reward environments like the Reacher.
+
+4. **Curriculum Learning through Gravity Scaling**
+Does training an agent on a curriculum of varying gravitational constants accelerate the mastery of high-dimensional environments like the Humanoid? By gradually shifting physical dynamics, we investigate whether the policy learns a more fundamental internal representation of physics. The objective is to evaluate if "gravity-aware" agents demonstrate superior zero-shot transfer to standard gravity conditions.
+
+5. **Cross-Morphology Skill Distillation**
+Can motor skills acquired by a simple agent (e.g., Hopper) be distilled into the high-dimensional action space of a complex agent (e.g., Humanoid) to provide a warm-start for training? This idea explores the feasibility of mapping low-dimensional control primitives onto high-dimensional articulated bodies. The objective is to establish a hierarchy of skill transfer across distinct physical morphologies.
+
+6. **Constraint-Aware Latent Policy Optimization**
+Can we embed physical safety constraints (such as preventing joint over-extension) directly into the latent space of the policy rather than treating them as penalty terms in the reward function? This research explores the use of differentiable projection layers to enforce kinematic feasibility. The objective is to achieve "hard" safety guarantees that do not interfere with the gradient flow of the RL agent.
+
+7. **Temporal Abstraction via Proprioceptive Rhythms**
+Can we identify and exploit inherent cyclic motor rhythms in locomotion tasks to simplify the control problem into hierarchical sub-tasks? By decomposing continuous actions into rhythmic primitives and high-level modulation, we examine if this reduces the dimensionality of the required exploration. The objective is to determine if temporal abstraction outperforms monolithic control in high-DOF robots.
+
+8. **Epistemic Uncertainty-Driven Exploration**
+How does explicitly modeling the agent's uncertainty regarding its own dynamics influence exploration in environments with high-dimensional state spaces? This study examines if targeting areas of high model disagreement leads to faster discovery of complex maneuvers. The objective is to prove that epistemic-driven exploration is more effective than traditional stochastic noise for high-DOF control.
+
+9. **Robustness to Sensor Latency and Jitter**
+Can agents trained with randomized temporal delays and sensor noise develop "perceptual robustness" that mimics real-world robotic deployment? This project investigates whether injecting stochastic latency into the observation stream forces the policy to learn proactive, predictive control. The research objective is to quantify the trade-off between control precision and robustness to delayed feedback.
+
+10. **Neuro-Symbolic Reward Shaping**
+Can we derive complex, non-linear reward functions automatically by using symbolic regression to optimize for long-term task success? By evolving the reward structure itself, we investigate if we can eliminate the manual tuning of dense reward weights. The objective is to discover "emergent" reward functions that outperform standard velocity-based heuristics in multi-objective tasks.
+\end{IDEAS}
+
+
+###### PROMPT BEGINS ########
+Human: 
+**Role**: Senior Scientific Lead and Final Decision Maker.
+**Objective**: Review the ideas prioritized by the three independent Reviewer Agents and select the single most promising research project to proceed to the implementation phase.
+
+**Context**: 
+A pool of 10 initial ideas was generated. Three independent agents have evaluated those ideas and identified their top selections (provided below). Your role is to serve as the final filter, selecting the "Best of the Best" based on scientific merit and the constraints of the dataset.
+
+**Evaluation Criteria**:
+1. **Scientific Consensus**: Does an idea appear as a top choice for multiple reviewers?
+2. **Execution Readiness**: Given the 'Data Description,' which idea is most likely to produce a valid, non-erroneous scientific result?
+3. **Strategic Impact**: Which project offers the most meaningful contribution to the Foundation's research goals?
+4. **Novelty vs Previous Work**: The selected idea should be as different as possible from any previous ideas to ensure new scientific contributions.
+
+**Operational Constraints**:
+- **Selection Only**: You must select exactly one idea.
+- **Strict Fidelity**: Do not modify, rephrase, or correct the original text of the idea. 
+- **Zero Commentary**: Do not justify your decision, provide pros/cons, or offer any introductory text.
+- **Output Integrity**: Provide **only** the text of the selected idea within the required tags.
+- The selected idea must contain a title and a description of the idea
+
+Data description:
+# Deep Reinforcement Learning on MuJoCo Continuous Control Benchmarks
+
+## Overview
+
+This project investigates novel reinforcement learning methods on standard MuJoCo continuous-control benchmarks from the Gymnasium library (gymnasium[mujoco], mujoco 3.8.0). MuJoCo provides physically realistic simulation of articulated robotic bodies, making it the standard testbed for evaluating deep RL algorithms on high-dimensional continuous action spaces.
+
+## Available Environments
+
+All standard MuJoCo Gymnasium environments are available:
+
+- **HalfCheetah-v4/v5** — 17-dim state, 6-dim action. Fast locomotion task for a 2D cheetah-like body. No termination condition. Dense reward based on forward velocity.
+- **Ant-v4/v5** — 27-dim state, 8-dim action. Ant locomotion in 3D. Episodes terminate if the ant falls over. Dense reward based on forward speed and control cost.
+- **Hopper-v4/v5** — 11-dim state, 3-dim action. Single-legged hopper. Terminates on falling. Requires balance and coordination.
+- **Walker2d-v4/v5** — 17-dim state, 6-dim action. Bipedal walker. Terminates on falling. Requires balance and forward locomotion.
+- **Humanoid-v4/v5** — 376-dim state, 17-dim action. Full humanoid body. High-dimensional, challenging exploration.
+- **Swimmer-v4/v5** — 8-dim state, 2-dim action. Underwater swimmer. Simple dynamics, no termination.
+- **Reacher-v4/v5** — 11-dim state, 2-dim action. 2-DOF arm reaching task. Sparse-ish reward.
+- **InvertedPendulum-v4/v5** — simple control baseline.
+
+## Hardware
+
+- NVIDIA RTX PRO 6000 Blackwell (96 GB VRAM), CUDA 13.0
+- PyTorch available at device='cuda'
+- 32 CPUs, 64 GB RAM
+- Parallel environment vectorization supported via gymnasium.vector
+
+## Standard Baselines
+
+For reference, well-known algorithms and their typical performance on these environments:
+- **SAC** (Soft Actor-Critic): state-of-the-art off-policy, HalfCheetah ~12,000 return, Ant ~5,000, Hopper ~3,500
+- **PPO**: on-policy, slightly lower sample efficiency
+- **TD3**: deterministic off-policy, strong on HalfCheetah
+- **DDPG**: original off-policy actor-critic
+
+## Research Directions of Interest
+
+Open questions in continuous-control RL include:
+- Sample efficiency improvements
+- Transfer learning and generalization across tasks
+- Incorporating physical priors or structure into policy/value networks
+- Reward shaping and curriculum learning
+- Multi-task and meta-learning
+- Safe RL / constraint satisfaction
+- Exploration strategies in high-dimensional spaces
+
+## File Paths
+
+No pre-existing data files. All experience is generated online via environment interaction.
+Environments instantiated as: `gymnasium.make('HalfCheetah-v4')` etc.
+
+
+Ideas:
+Idea selected1: **Morphological Symmetry Breaking in Locomotion**
+Does the introduction of controlled physical asymmetries in the agent's body during training lead to more robust locomotion policies in uneven terrain? This research investigates whether symmetry-breaking forces the policy to develop generalized recovery behaviors rather than gait-specific patterns. The objective is to determine if "imperfect" robots achieve higher performance stability when transferred to standard symmetric environments.
+Idea selected2: **Morphological Symmetry Breaking in Locomotion**
+Does the introduction of controlled physical asymmetries in the agent's body during training lead to more robust locomotion policies in uneven terrain? This research investigates whether symmetry-breaking forces the policy to develop generalized recovery behaviors rather than gait-specific patterns. The objective is to determine if "imperfect" robots achieve higher performance stability when transferred to standard symmetric environments.
+Idea selected3: **Morphological Symmetry Breaking in Locomotion**
+Does the introduction of controlled physical asymmetries in the agent's body during training lead to more robust locomotion policies in uneven terrain? This research investigates whether symmetry-breaking forces the policy to develop generalized recovery behaviors rather than gait-specific patterns. The objective is to determine if "imperfect" robots achieve higher performance stability when transferred to standard symmetric environments.
+
+
+
+
+
+
+
+Respond in exactly the following format:
+
+\\begin{IDEA}
+<IDEA>
+\\end{IDEA}
+
+In <IDEA>, put the idea you have selected
+
+###### PROMPT ENDS ########
+
+###### RESPONSE [model: gemini-3.1-flash-lite-preview] ########
+\begin{IDEA}
+**Morphological Symmetry Breaking in Locomotion**
+Does the introduction of controlled physical asymmetries in the agent's body during training lead to more robust locomotion policies in uneven terrain? This research investigates whether symmetry-breaking forces the policy to develop generalized recovery behaviors rather than gait-specific patterns. The objective is to determine if "imperfect" robots achieve higher performance stability when transferred to standard symmetric environments.
+\end{IDEA}
+
+
+###### PROMPT BEGINS ########
+Human: 
+**Role**: Skeptical Red Team Reviewer and Scientific Auditor.
+**Objective**: Conduct a rigorous "Stress Test" on the proposed research idea to identify fatal flaws, feasibility gaps, and potential scientific "slop."
+
+**Evaluation Criteria**:
+1. **Data-Hypothesis Alignment**: Does the dataset described actually contain the variables and precision required to test this idea?
+2. **Feasibility & Noise**: Is the signal-to-noise ratio realistic? Is the idea too ambitious for the provided data?
+3. **Redundancy Check**: Does this idea simply repeat a "standard" analysis, or is it a meaningful contribution?
+4. **Physical Reality**: Does the idea violate any constraints or physical laws mentioned in the data description?
+
+**Task**:
+- Critically analyze the "Current Idea" against the "Data Description."
+- If the idea is **unfeasible**, explicitly state why and suggest a "Strategic Pivot" (a new direction that *is* supported by the data).
+- If the idea is **feasible but weak**, identify the specific "weak links" in the logic.
+- Compare it against "Previous Ideas" to ensure the refinement loop is moving forward, not backward.
+
+**Operational Constraints**:
+- **Tone**: Be professional, objective, and intellectually demanding. 
+- **Brevity**: Use high-density bullet points. Do not waste words on pleasantries.
+- **Strict Adherence**: Every criticism must be grounded in the provided 'Data Description.'
+
+**Input Data**:
+- **Data Description**: # Deep Reinforcement Learning on MuJoCo Continuous Control Benchmarks
+
+## Overview
+
+This project investigates novel reinforcement learning methods on standard MuJoCo continuous-control benchmarks from the Gymnasium library (gymnasium[mujoco], mujoco 3.8.0). MuJoCo provides physically realistic simulation of articulated robotic bodies, making it the standard testbed for evaluating deep RL algorithms on high-dimensional continuous action spaces.
+
+## Available Environments
+
+All standard MuJoCo Gymnasium environments are available:
+
+- **HalfCheetah-v4/v5** — 17-dim state, 6-dim action. Fast locomotion task for a 2D cheetah-like body. No termination condition. Dense reward based on forward velocity.
+- **Ant-v4/v5** — 27-dim state, 8-dim action. Ant locomotion in 3D. Episodes terminate if the ant falls over. Dense reward based on forward speed and control cost.
+- **Hopper-v4/v5** — 11-dim state, 3-dim action. Single-legged hopper. Terminates on falling. Requires balance and coordination.
+- **Walker2d-v4/v5** — 17-dim state, 6-dim action. Bipedal walker. Terminates on falling. Requires balance and forward locomotion.
+- **Humanoid-v4/v5** — 376-dim state, 17-dim action. Full humanoid body. High-dimensional, challenging exploration.
+- **Swimmer-v4/v5** — 8-dim state, 2-dim action. Underwater swimmer. Simple dynamics, no termination.
+- **Reacher-v4/v5** — 11-dim state, 2-dim action. 2-DOF arm reaching task. Sparse-ish reward.
+- **InvertedPendulum-v4/v5** — simple control baseline.
+
+## Hardware
+
+- NVIDIA RTX PRO 6000 Blackwell (96 GB VRAM), CUDA 13.0
+- PyTorch available at device='cuda'
+- 32 CPUs, 64 GB RAM
+- Parallel environment vectorization supported via gymnasium.vector
+
+## Standard Baselines
+
+For reference, well-known algorithms and their typical performance on these environments:
+- **SAC** (Soft Actor-Critic): state-of-the-art off-policy, HalfCheetah ~12,000 return, Ant ~5,000, Hopper ~3,500
+- **PPO**: on-policy, slightly lower sample efficiency
+- **TD3**: deterministic off-policy, strong on HalfCheetah
+- **DDPG**: original off-policy actor-critic
+
+## Research Directions of Interest
+
+Open questions in continuous-control RL include:
+- Sample efficiency improvements
+- Transfer learning and generalization across tasks
+- Incorporating physical priors or structure into policy/value networks
+- Reward shaping and curriculum learning
+- Multi-task and meta-learning
+- Safe RL / constraint satisfaction
+- Exploration strategies in high-dimensional spaces
+
+## File Paths
+
+No pre-existing data files. All experience is generated online via environment interaction.
+Environments instantiated as: `gymnasium.make('HalfCheetah-v4')` etc.
+
+- **Current Idea**: **Morphological Symmetry Breaking in Locomotion**
+Does the introduction of controlled physical asymmetries in the agent's body during training lead to more robust locomotion policies in uneven terrain? This research investigates whether symmetry-breaking forces the policy to develop generalized recovery behaviors rather than gait-specific patterns. The objective is to determine if "imperfect" robots achieve higher performance stability when transferred to standard symmetric environments.    
+
+Respond in the following format:
+
+\\begin{CRITIC}
+<CRITIC>
+\\end{CRITIC}
+
+In <CRITIC>, put your criticism to the idea. Try to be brief in the description.
+
+###### PROMPT ENDS ########
+
+###### RESPONSE [model: gemini-3.1-flash-lite-preview] ########
+\begin{CRITIC}
+*   **Data-Hypothesis Alignment (Fatal Flaw):** The provided `gymnasium[mujoco]` environments are fixed-specification benchmarks. They do not natively support dynamic modification of agent morphology (e.g., limb length, mass distribution, or joint constraints) during runtime. Implementing this requires modifying the underlying XML model files for every episode, which is not supported by the standard `gymnasium.make()` interface without significant custom wrapper development.
+*   **Feasibility & Noise:** The hypothesis assumes that "asymmetry" leads to "robustness." However, without a defined metric for "uneven terrain" (which is not a standard feature of these flat-plane MuJoCo environments), the agent will simply learn to compensate for a static bias. This is a control-theory problem (bias compensation), not a generalization problem.
+*   **Redundancy Check:** This overlaps significantly with existing research on "Domain Randomization" (e.g., Sim-to-Real transfer). Simply introducing asymmetry is a standard technique in robust RL; the proposal lacks a novel mechanism for *how* the policy learns to generalize beyond standard noise injection.
+*   **Physical Reality:** The `Humanoid-v4` and `Ant-v4` environments are highly sensitive to mass/inertia changes. Introducing arbitrary asymmetries without re-tuning the reward function (which is hard-coded for symmetric locomotion) will likely lead to catastrophic failure (falling) rather than "robust recovery," rendering the training signal useless.
+
+**Strategic Pivot:**
+Instead of modifying morphology (which the current data pipeline does not support), pivot to **"Latent Space Perturbation for Robustness."** 
+1.  Use the existing symmetric environments.
+2.  Inject stochastic, non-stationary noise into the *observation space* or *action space* during training (e.g., sensor drift or actuator latency).
+3.  Measure the "Recovery Latency" (time to return to steady-state velocity after a perturbation) as the primary metric for robustness.
+4.  This utilizes the high-dimensional state space of `Humanoid-v4` effectively and remains strictly within the bounds of the provided `gymnasium` API.
+\end{CRITIC}
+
+
+###### PROMPT BEGINS ########
+Human: 
+**Role**: Senior Research Scientific.
+**Objective**: Synthesize a primary research idea with expert criticism to produce a refined, groundbreaking, and technically feasible scientific objective.
+
+**Task**:
+You are in an iterative refinement loop (Iteration: 0). Your goal is to take the "Previous Idea," pass it through the filter of the "Critiques," and produce a "Hardened Idea" that is more scientifically rigorous and original than its predecessor.
+
+**Refinement Principles**:
+1. **Address Caveats**: If the critic mentioned a lack of feasibility, adjust the scope of the idea to fit the 'Data Description.'
+2. **Increase Specificity**: Move away from generic goals. Use the statistics and variables found in the data description to make the idea more concrete.
+3. **Internalize Feedback**: Do not explicitly mention the criticism or explain your changes. Instead, weave the solutions directly into the new version of the idea.
+4. **Maintain Grounding**: Ensure the "groundbreaking" aspect remains physically possible within the provided dataset's constraints.
+
+**Operational Constraints**:
+- **Brevity**: Keep the description concise but high-density (max 6 sentences).
+- **Format**: Do not include introductory text or meta-commentary about the process.
+- **Fidelity**: Stick strictly to the guidelines and physical realities described in the data description.
+- The idea must contain a title and a description of the idea
+
+**Input Data**:
+- **Data Description**: # Deep Reinforcement Learning on MuJoCo Continuous Control Benchmarks
+
+## Overview
+
+This project investigates novel reinforcement learning methods on standard MuJoCo continuous-control benchmarks from the Gymnasium library (gymnasium[mujoco], mujoco 3.8.0). MuJoCo provides physically realistic simulation of articulated robotic bodies, making it the standard testbed for evaluating deep RL algorithms on high-dimensional continuous action spaces.
+
+## Available Environments
+
+All standard MuJoCo Gymnasium environments are available:
+
+- **HalfCheetah-v4/v5** — 17-dim state, 6-dim action. Fast locomotion task for a 2D cheetah-like body. No termination condition. Dense reward based on forward velocity.
+- **Ant-v4/v5** — 27-dim state, 8-dim action. Ant locomotion in 3D. Episodes terminate if the ant falls over. Dense reward based on forward speed and control cost.
+- **Hopper-v4/v5** — 11-dim state, 3-dim action. Single-legged hopper. Terminates on falling. Requires balance and coordination.
+- **Walker2d-v4/v5** — 17-dim state, 6-dim action. Bipedal walker. Terminates on falling. Requires balance and forward locomotion.
+- **Humanoid-v4/v5** — 376-dim state, 17-dim action. Full humanoid body. High-dimensional, challenging exploration.
+- **Swimmer-v4/v5** — 8-dim state, 2-dim action. Underwater swimmer. Simple dynamics, no termination.
+- **Reacher-v4/v5** — 11-dim state, 2-dim action. 2-DOF arm reaching task. Sparse-ish reward.
+- **InvertedPendulum-v4/v5** — simple control baseline.
+
+## Hardware
+
+- NVIDIA RTX PRO 6000 Blackwell (96 GB VRAM), CUDA 13.0
+- PyTorch available at device='cuda'
+- 32 CPUs, 64 GB RAM
+- Parallel environment vectorization supported via gymnasium.vector
+
+## Standard Baselines
+
+For reference, well-known algorithms and their typical performance on these environments:
+- **SAC** (Soft Actor-Critic): state-of-the-art off-policy, HalfCheetah ~12,000 return, Ant ~5,000, Hopper ~3,500
+- **PPO**: on-policy, slightly lower sample efficiency
+- **TD3**: deterministic off-policy, strong on HalfCheetah
+- **DDPG**: original off-policy actor-critic
+
+## Research Directions of Interest
+
+Open questions in continuous-control RL include:
+- Sample efficiency improvements
+- Transfer learning and generalization across tasks
+- Incorporating physical priors or structure into policy/value networks
+- Reward shaping and curriculum learning
+- Multi-task and meta-learning
+- Safe RL / constraint satisfaction
+- Exploration strategies in high-dimensional spaces
+
+## File Paths
+
+No pre-existing data files. All experience is generated online via environment interaction.
+Environments instantiated as: `gymnasium.make('HalfCheetah-v4')` etc.
+
+- **Critical Feedback**: *   **Data-Hypothesis Alignment (Fatal Flaw):** The provided `gymnasium[mujoco]` environments are fixed-specification benchmarks. They do not natively support dynamic modification of agent morphology (e.g., limb length, mass distribution, or joint constraints) during runtime. Implementing this requires modifying the underlying XML model files for every episode, which is not supported by the standard `gymnasium.make()` interface without significant custom wrapper development.
+*   **Feasibility & Noise:** The hypothesis assumes that "asymmetry" leads to "robustness." However, without a defined metric for "uneven terrain" (which is not a standard feature of these flat-plane MuJoCo environments), the agent will simply learn to compensate for a static bias. This is a control-theory problem (bias compensation), not a generalization problem.
+*   **Redundancy Check:** This overlaps significantly with existing research on "Domain Randomization" (e.g., Sim-to-Real transfer). Simply introducing asymmetry is a standard technique in robust RL; the proposal lacks a novel mechanism for *how* the policy learns to generalize beyond standard noise injection.
+*   **Physical Reality:** The `Humanoid-v4` and `Ant-v4` environments are highly sensitive to mass/inertia changes. Introducing arbitrary asymmetries without re-tuning the reward function (which is hard-coded for symmetric locomotion) will likely lead to catastrophic failure (falling) rather than "robust recovery," rendering the training signal useless.
+
+**Strategic Pivot:**
+Instead of modifying morphology (which the current data pipeline does not support), pivot to **"Latent Space Perturbation for Robustness."** 
+1.  Use the existing symmetric environments.
+2.  Inject stochastic, non-stationary noise into the *observation space* or *action space* during training (e.g., sensor drift or actuator latency).
+3.  Measure the "Recovery Latency" (time to return to steady-state velocity after a perturbation) as the primary metric for robustness.
+4.  This utilizes the high-dimensional state space of `Humanoid-v4` effectively and remains strictly within the bounds of the provided `gymnasium` API.
+
+Respond in the following format:
+
+\\begin{IDEA}
+<IDEA>
+\\end{IDEA}
+
+In <IDEA>, put the refined idea. 
+
+###### PROMPT ENDS ########
+
+###### RESPONSE [model: gemini-3.1-flash-lite-preview] ########
+\begin{IDEA}
+**Title:** Latent-Space Perturbation via Adversarial Latency Injection for Robust Humanoid Locomotion
+
+**Description:** This research implements a robust control framework for the Humanoid-v4 environment by injecting non-stationary, stochastic latency into the action-space pipeline during training. By modeling actuator delays as a time-varying latent variable, we force the policy to learn a compensatory predictive structure that minimizes recovery latency following transient perturbations. We utilize the high-dimensional 376-dim observation space to train an encoder that maps delayed sensory feedback to a stable internal state, effectively mitigating sensor drift. The objective is to achieve a significantly faster return to steady-state velocity compared to standard SAC baselines when subjected to randomized, multi-joint control delays. Performance is measured by the integral of the velocity error post-perturbation, validated against the standard Humanoid-v4 dense reward function to ensure motion stability is maintained under high-dimensional stress.
+\end{IDEA}
+
+
+###### PROMPT BEGINS ########
+Human: 
+**Role**: Skeptical Red Team Reviewer and Scientific Auditor.
+**Objective**: Conduct a rigorous "Stress Test" on the proposed research idea to identify fatal flaws, feasibility gaps, and potential scientific "slop."
+
+**Evaluation Criteria**:
+1. **Data-Hypothesis Alignment**: Does the dataset described actually contain the variables and precision required to test this idea?
+2. **Feasibility & Noise**: Is the signal-to-noise ratio realistic? Is the idea too ambitious for the provided data?
+3. **Redundancy Check**: Does this idea simply repeat a "standard" analysis, or is it a meaningful contribution?
+4. **Physical Reality**: Does the idea violate any constraints or physical laws mentioned in the data description?
+
+**Task**:
+- Critically analyze the "Current Idea" against the "Data Description."
+- If the idea is **unfeasible**, explicitly state why and suggest a "Strategic Pivot" (a new direction that *is* supported by the data).
+- If the idea is **feasible but weak**, identify the specific "weak links" in the logic.
+- Compare it against "Previous Ideas" to ensure the refinement loop is moving forward, not backward.
+
+**Operational Constraints**:
+- **Tone**: Be professional, objective, and intellectually demanding. 
+- **Brevity**: Use high-density bullet points. Do not waste words on pleasantries.
+- **Strict Adherence**: Every criticism must be grounded in the provided 'Data Description.'
+
+**Input Data**:
+- **Data Description**: # Deep Reinforcement Learning on MuJoCo Continuous Control Benchmarks
+
+## Overview
+
+This project investigates novel reinforcement learning methods on standard MuJoCo continuous-control benchmarks from the Gymnasium library (gymnasium[mujoco], mujoco 3.8.0). MuJoCo provides physically realistic simulation of articulated robotic bodies, making it the standard testbed for evaluating deep RL algorithms on high-dimensional continuous action spaces.
+
+## Available Environments
+
+All standard MuJoCo Gymnasium environments are available:
+
+- **HalfCheetah-v4/v5** — 17-dim state, 6-dim action. Fast locomotion task for a 2D cheetah-like body. No termination condition. Dense reward based on forward velocity.
+- **Ant-v4/v5** — 27-dim state, 8-dim action. Ant locomotion in 3D. Episodes terminate if the ant falls over. Dense reward based on forward speed and control cost.
+- **Hopper-v4/v5** — 11-dim state, 3-dim action. Single-legged hopper. Terminates on falling. Requires balance and coordination.
+- **Walker2d-v4/v5** — 17-dim state, 6-dim action. Bipedal walker. Terminates on falling. Requires balance and forward locomotion.
+- **Humanoid-v4/v5** — 376-dim state, 17-dim action. Full humanoid body. High-dimensional, challenging exploration.
+- **Swimmer-v4/v5** — 8-dim state, 2-dim action. Underwater swimmer. Simple dynamics, no termination.
+- **Reacher-v4/v5** — 11-dim state, 2-dim action. 2-DOF arm reaching task. Sparse-ish reward.
+- **InvertedPendulum-v4/v5** — simple control baseline.
+
+## Hardware
+
+- NVIDIA RTX PRO 6000 Blackwell (96 GB VRAM), CUDA 13.0
+- PyTorch available at device='cuda'
+- 32 CPUs, 64 GB RAM
+- Parallel environment vectorization supported via gymnasium.vector
+
+## Standard Baselines
+
+For reference, well-known algorithms and their typical performance on these environments:
+- **SAC** (Soft Actor-Critic): state-of-the-art off-policy, HalfCheetah ~12,000 return, Ant ~5,000, Hopper ~3,500
+- **PPO**: on-policy, slightly lower sample efficiency
+- **TD3**: deterministic off-policy, strong on HalfCheetah
+- **DDPG**: original off-policy actor-critic
+
+## Research Directions of Interest
+
+Open questions in continuous-control RL include:
+- Sample efficiency improvements
+- Transfer learning and generalization across tasks
+- Incorporating physical priors or structure into policy/value networks
+- Reward shaping and curriculum learning
+- Multi-task and meta-learning
+- Safe RL / constraint satisfaction
+- Exploration strategies in high-dimensional spaces
+
+## File Paths
+
+No pre-existing data files. All experience is generated online via environment interaction.
+Environments instantiated as: `gymnasium.make('HalfCheetah-v4')` etc.
+
+- **Current Idea**: **Title:** Latent-Space Perturbation via Adversarial Latency Injection for Robust Humanoid Locomotion
+
+**Description:** This research implements a robust control framework for the Humanoid-v4 environment by injecting non-stationary, stochastic latency into the action-space pipeline during training. By modeling actuator delays as a time-varying latent variable, we force the policy to learn a compensatory predictive structure that minimizes recovery latency following transient perturbations. We utilize the high-dimensional 376-dim observation space to train an encoder that maps delayed sensory feedback to a stable internal state, effectively mitigating sensor drift. The objective is to achieve a significantly faster return to steady-state velocity compared to standard SAC baselines when subjected to randomized, multi-joint control delays. Performance is measured by the integral of the velocity error post-perturbation, validated against the standard Humanoid-v4 dense reward function to ensure motion stability is maintained under high-dimensional stress.
+- **Previous Versions (for context)**: 
+
+
+Iteration 0:
+Idea: **Title:** Latent-Space Perturbation via Adversarial Latency Injection for Robust Humanoid Locomotion
+
+**Description:** This research implements a robust control framework for the Humanoid-v4 environment by injecting non-stationary, stochastic latency into the action-space pipeline during training. By modeling actuator delays as a time-varying latent variable, we force the policy to learn a compensatory predictive structure that minimizes recovery latency following transient perturbations. We utilize the high-dimensional 376-dim observation space to train an encoder that maps delayed sensory feedback to a stable internal state, effectively mitigating sensor drift. The objective is to achieve a significantly faster return to steady-state velocity compared to standard SAC baselines when subjected to randomized, multi-joint control delays. Performance is measured by the integral of the velocity error post-perturbation, validated against the standard Humanoid-v4 dense reward function to ensure motion stability is maintained under high-dimensional stress.
+    
+
+Respond in the following format:
+
+\\begin{CRITIC}
+<CRITIC>
+\\end{CRITIC}
+
+In <CRITIC>, put your criticism to the idea. Try to be brief in the description.
+
+###### PROMPT ENDS ########
+
+###### RESPONSE [model: gemini-3.1-flash-lite-preview] ########
+\begin{CRITIC}
+*   **Data-Hypothesis Alignment (Fatal Flaw):** The proposal claims to mitigate "sensor drift" and "sensory feedback" delays. However, MuJoCo environments provide ground-truth state observations (376-dim) directly from the simulator. There is no inherent sensor noise or drift model in `Humanoid-v4`. You are solving a problem that does not exist in the provided data.
+*   **Feasibility & Noise:** Injecting stochastic latency into the action pipeline is a valid robustness test, but the claim that an encoder can "mitigate sensor drift" is scientifically unsupported. If the input state is ground truth, an encoder cannot "denoise" drift that isn't present; it can only learn to compensate for the *action* delay.
+*   **Redundancy Check:** This is essentially "Domain Randomization" applied to action timing. Without a mechanism to explicitly model the latent delay (e.g., a Recurrent Neural Network or Transformer architecture), the policy will likely just learn a conservative, high-damping gait, which is a standard outcome of robust RL, not a novel contribution.
+*   **Strategic Pivot:** Abandon the "sensor drift" narrative. Pivot to **"Action-Delay Robustness via Recurrent Policy Architectures."** 
+    *   **Refinement:** Compare a standard MLP-based SAC policy against a GRU/LSTM-augmented SAC policy under varying, non-stationary action-delay distributions. 
+    *   **Metric:** Measure the "Recovery Time Constant" (time to return to 90% of nominal velocity) post-perturbation. This leverages the high-dimensional state space to test if the recurrent state can effectively act as a "memory buffer" for delayed control signals.
+*   **Comparison:** This iteration is identical to Iteration 0. The "Red Team" audit identifies zero progress. The focus must shift from "sensor drift" (non-existent) to "temporal credit assignment under delayed actuation" (a valid, testable hypothesis).
+\end{CRITIC}
+
+
+###### PROMPT BEGINS ########
+Human: 
+**Role**: Senior Research Scientific.
+**Objective**: Synthesize a primary research idea with expert criticism to produce a refined, groundbreaking, and technically feasible scientific objective.
+
+**Task**:
+You are in an iterative refinement loop (Iteration: 1). Your goal is to take the "Previous Idea," pass it through the filter of the "Critiques," and produce a "Hardened Idea" that is more scientifically rigorous and original than its predecessor.
+
+**Refinement Principles**:
+1. **Address Caveats**: If the critic mentioned a lack of feasibility, adjust the scope of the idea to fit the 'Data Description.'
+2. **Increase Specificity**: Move away from generic goals. Use the statistics and variables found in the data description to make the idea more concrete.
+3. **Internalize Feedback**: Do not explicitly mention the criticism or explain your changes. Instead, weave the solutions directly into the new version of the idea.
+4. **Maintain Grounding**: Ensure the "groundbreaking" aspect remains physically possible within the provided dataset's constraints.
+
+**Operational Constraints**:
+- **Brevity**: Keep the description concise but high-density (max 6 sentences).
+- **Format**: Do not include introductory text or meta-commentary about the process.
+- **Fidelity**: Stick strictly to the guidelines and physical realities described in the data description.
+- The idea must contain a title and a description of the idea
+
+**Input Data**:
+- **Data Description**: # Deep Reinforcement Learning on MuJoCo Continuous Control Benchmarks
+
+## Overview
+
+This project investigates novel reinforcement learning methods on standard MuJoCo continuous-control benchmarks from the Gymnasium library (gymnasium[mujoco], mujoco 3.8.0). MuJoCo provides physically realistic simulation of articulated robotic bodies, making it the standard testbed for evaluating deep RL algorithms on high-dimensional continuous action spaces.
+
+## Available Environments
+
+All standard MuJoCo Gymnasium environments are available:
+
+- **HalfCheetah-v4/v5** — 17-dim state, 6-dim action. Fast locomotion task for a 2D cheetah-like body. No termination condition. Dense reward based on forward velocity.
+- **Ant-v4/v5** — 27-dim state, 8-dim action. Ant locomotion in 3D. Episodes terminate if the ant falls over. Dense reward based on forward speed and control cost.
+- **Hopper-v4/v5** — 11-dim state, 3-dim action. Single-legged hopper. Terminates on falling. Requires balance and coordination.
+- **Walker2d-v4/v5** — 17-dim state, 6-dim action. Bipedal walker. Terminates on falling. Requires balance and forward locomotion.
+- **Humanoid-v4/v5** — 376-dim state, 17-dim action. Full humanoid body. High-dimensional, challenging exploration.
+- **Swimmer-v4/v5** — 8-dim state, 2-dim action. Underwater swimmer. Simple dynamics, no termination.
+- **Reacher-v4/v5** — 11-dim state, 2-dim action. 2-DOF arm reaching task. Sparse-ish reward.
+- **InvertedPendulum-v4/v5** — simple control baseline.
+
+## Hardware
+
+- NVIDIA RTX PRO 6000 Blackwell (96 GB VRAM), CUDA 13.0
+- PyTorch available at device='cuda'
+- 32 CPUs, 64 GB RAM
+- Parallel environment vectorization supported via gymnasium.vector
+
+## Standard Baselines
+
+For reference, well-known algorithms and their typical performance on these environments:
+- **SAC** (Soft Actor-Critic): state-of-the-art off-policy, HalfCheetah ~12,000 return, Ant ~5,000, Hopper ~3,500
+- **PPO**: on-policy, slightly lower sample efficiency
+- **TD3**: deterministic off-policy, strong on HalfCheetah
+- **DDPG**: original off-policy actor-critic
+
+## Research Directions of Interest
+
+Open questions in continuous-control RL include:
+- Sample efficiency improvements
+- Transfer learning and generalization across tasks
+- Incorporating physical priors or structure into policy/value networks
+- Reward shaping and curriculum learning
+- Multi-task and meta-learning
+- Safe RL / constraint satisfaction
+- Exploration strategies in high-dimensional spaces
+
+## File Paths
+
+No pre-existing data files. All experience is generated online via environment interaction.
+Environments instantiated as: `gymnasium.make('HalfCheetah-v4')` etc.
+
+- **Previous Versions**: 
+
+
+Iteration 0:
+Idea: **Title:** Latent-Space Perturbation via Adversarial Latency Injection for Robust Humanoid Locomotion
+
+**Description:** This research implements a robust control framework for the Humanoid-v4 environment by injecting non-stationary, stochastic latency into the action-space pipeline during training. By modeling actuator delays as a time-varying latent variable, we force the policy to learn a compensatory predictive structure that minimizes recovery latency following transient perturbations. We utilize the high-dimensional 376-dim observation space to train an encoder that maps delayed sensory feedback to a stable internal state, effectively mitigating sensor drift. The objective is to achieve a significantly faster return to steady-state velocity compared to standard SAC baselines when subjected to randomized, multi-joint control delays. Performance is measured by the integral of the velocity error post-perturbation, validated against the standard Humanoid-v4 dense reward function to ensure motion stability is maintained under high-dimensional stress.
+
+- **Critical Feedback**: *   **Data-Hypothesis Alignment (Fatal Flaw):** The proposal claims to mitigate "sensor drift" and "sensory feedback" delays. However, MuJoCo environments provide ground-truth state observations (376-dim) directly from the simulator. There is no inherent sensor noise or drift model in `Humanoid-v4`. You are solving a problem that does not exist in the provided data.
+*   **Feasibility & Noise:** Injecting stochastic latency into the action pipeline is a valid robustness test, but the claim that an encoder can "mitigate sensor drift" is scientifically unsupported. If the input state is ground truth, an encoder cannot "denoise" drift that isn't present; it can only learn to compensate for the *action* delay.
+*   **Redundancy Check:** This is essentially "Domain Randomization" applied to action timing. Without a mechanism to explicitly model the latent delay (e.g., a Recurrent Neural Network or Transformer architecture), the policy will likely just learn a conservative, high-damping gait, which is a standard outcome of robust RL, not a novel contribution.
+*   **Strategic Pivot:** Abandon the "sensor drift" narrative. Pivot to **"Action-Delay Robustness via Recurrent Policy Architectures."** 
+    *   **Refinement:** Compare a standard MLP-based SAC policy against a GRU/LSTM-augmented SAC policy under varying, non-stationary action-delay distributions. 
+    *   **Metric:** Measure the "Recovery Time Constant" (time to return to 90% of nominal velocity) post-perturbation. This leverages the high-dimensional state space to test if the recurrent state can effectively act as a "memory buffer" for delayed control signals.
+*   **Comparison:** This iteration is identical to Iteration 0. The "Red Team" audit identifies zero progress. The focus must shift from "sensor drift" (non-existent) to "temporal credit assignment under delayed actuation" (a valid, testable hypothesis).
+
+Respond in the following format:
+
+\\begin{IDEA}
+<IDEA>
+\\end{IDEA}
+
+In <IDEA>, put the refined idea. 
+
+###### PROMPT ENDS ########
+
+###### RESPONSE [model: gemini-3.1-flash-lite-preview] ########
+\begin{IDEA}
+**Title:** Temporal Credit Assignment for Delayed Actuation in Humanoid-v4 via Recurrent Policy Architectures
+
+**Description:** This research investigates the impact of stochastic, non-stationary action-delay distributions on high-dimensional locomotion by comparing standard MLP-based SAC policies against GRU-augmented SAC agents. By injecting variable latency into the 17-dim action space of the Humanoid-v4 environment, we test the hypothesis that recurrent state representations can act as a temporal buffer to compensate for delayed control signals. The study focuses on measuring the "Recovery Time Constant"—defined as the interval required to return to 90% of nominal forward velocity following transient, multi-joint actuation disruptions. We utilize the 376-dim ground-truth state space to evaluate whether recurrent policies maintain superior stability and energy efficiency compared to MLP baselines under varying delay regimes. The final analysis will quantify the trade-off between recurrent memory depth and the sample efficiency required to achieve robust locomotion in high-dimensional continuous control.
+\end{IDEA}
+
+
+###### PROMPT BEGINS ########
+Human: 
+**Role**: Skeptical Red Team Reviewer and Scientific Auditor.
+**Objective**: Conduct a rigorous "Stress Test" on the proposed research idea to identify fatal flaws, feasibility gaps, and potential scientific "slop."
+
+**Evaluation Criteria**:
+1. **Data-Hypothesis Alignment**: Does the dataset described actually contain the variables and precision required to test this idea?
+2. **Feasibility & Noise**: Is the signal-to-noise ratio realistic? Is the idea too ambitious for the provided data?
+3. **Redundancy Check**: Does this idea simply repeat a "standard" analysis, or is it a meaningful contribution?
+4. **Physical Reality**: Does the idea violate any constraints or physical laws mentioned in the data description?
+
+**Task**:
+- Critically analyze the "Current Idea" against the "Data Description."
+- If the idea is **unfeasible**, explicitly state why and suggest a "Strategic Pivot" (a new direction that *is* supported by the data).
+- If the idea is **feasible but weak**, identify the specific "weak links" in the logic.
+- Compare it against "Previous Ideas" to ensure the refinement loop is moving forward, not backward.
+
+**Operational Constraints**:
+- **Tone**: Be professional, objective, and intellectually demanding. 
+- **Brevity**: Use high-density bullet points. Do not waste words on pleasantries.
+- **Strict Adherence**: Every criticism must be grounded in the provided 'Data Description.'
+
+**Input Data**:
+- **Data Description**: # Deep Reinforcement Learning on MuJoCo Continuous Control Benchmarks
+
+## Overview
+
+This project investigates novel reinforcement learning methods on standard MuJoCo continuous-control benchmarks from the Gymnasium library (gymnasium[mujoco], mujoco 3.8.0). MuJoCo provides physically realistic simulation of articulated robotic bodies, making it the standard testbed for evaluating deep RL algorithms on high-dimensional continuous action spaces.
+
+## Available Environments
+
+All standard MuJoCo Gymnasium environments are available:
+
+- **HalfCheetah-v4/v5** — 17-dim state, 6-dim action. Fast locomotion task for a 2D cheetah-like body. No termination condition. Dense reward based on forward velocity.
+- **Ant-v4/v5** — 27-dim state, 8-dim action. Ant locomotion in 3D. Episodes terminate if the ant falls over. Dense reward based on forward speed and control cost.
+- **Hopper-v4/v5** — 11-dim state, 3-dim action. Single-legged hopper. Terminates on falling. Requires balance and coordination.
+- **Walker2d-v4/v5** — 17-dim state, 6-dim action. Bipedal walker. Terminates on falling. Requires balance and forward locomotion.
+- **Humanoid-v4/v5** — 376-dim state, 17-dim action. Full humanoid body. High-dimensional, challenging exploration.
+- **Swimmer-v4/v5** — 8-dim state, 2-dim action. Underwater swimmer. Simple dynamics, no termination.
+- **Reacher-v4/v5** — 11-dim state, 2-dim action. 2-DOF arm reaching task. Sparse-ish reward.
+- **InvertedPendulum-v4/v5** — simple control baseline.
+
+## Hardware
+
+- NVIDIA RTX PRO 6000 Blackwell (96 GB VRAM), CUDA 13.0
+- PyTorch available at device='cuda'
+- 32 CPUs, 64 GB RAM
+- Parallel environment vectorization supported via gymnasium.vector
+
+## Standard Baselines
+
+For reference, well-known algorithms and their typical performance on these environments:
+- **SAC** (Soft Actor-Critic): state-of-the-art off-policy, HalfCheetah ~12,000 return, Ant ~5,000, Hopper ~3,500
+- **PPO**: on-policy, slightly lower sample efficiency
+- **TD3**: deterministic off-policy, strong on HalfCheetah
+- **DDPG**: original off-policy actor-critic
+
+## Research Directions of Interest
+
+Open questions in continuous-control RL include:
+- Sample efficiency improvements
+- Transfer learning and generalization across tasks
+- Incorporating physical priors or structure into policy/value networks
+- Reward shaping and curriculum learning
+- Multi-task and meta-learning
+- Safe RL / constraint satisfaction
+- Exploration strategies in high-dimensional spaces
+
+## File Paths
+
+No pre-existing data files. All experience is generated online via environment interaction.
+Environments instantiated as: `gymnasium.make('HalfCheetah-v4')` etc.
+
+- **Current Idea**: **Title:** Temporal Credit Assignment for Delayed Actuation in Humanoid-v4 via Recurrent Policy Architectures
+
+**Description:** This research investigates the impact of stochastic, non-stationary action-delay distributions on high-dimensional locomotion by comparing standard MLP-based SAC policies against GRU-augmented SAC agents. By injecting variable latency into the 17-dim action space of the Humanoid-v4 environment, we test the hypothesis that recurrent state representations can act as a temporal buffer to compensate for delayed control signals. The study focuses on measuring the "Recovery Time Constant"—defined as the interval required to return to 90% of nominal forward velocity following transient, multi-joint actuation disruptions. We utilize the 376-dim ground-truth state space to evaluate whether recurrent policies maintain superior stability and energy efficiency compared to MLP baselines under varying delay regimes. The final analysis will quantify the trade-off between recurrent memory depth and the sample efficiency required to achieve robust locomotion in high-dimensional continuous control.
+- **Previous Versions (for context)**: 
+
+
+
+Iteration 0:
+Idea: **Title:** Latent-Space Perturbation via Adversarial Latency Injection for Robust Humanoid Locomotion
+
+**Description:** This research implements a robust control framework for the Humanoid-v4 environment by injecting non-stationary, stochastic latency into the action-space pipeline during training. By modeling actuator delays as a time-varying latent variable, we force the policy to learn a compensatory predictive structure that minimizes recovery latency following transient perturbations. We utilize the high-dimensional 376-dim observation space to train an encoder that maps delayed sensory feedback to a stable internal state, effectively mitigating sensor drift. The objective is to achieve a significantly faster return to steady-state velocity compared to standard SAC baselines when subjected to randomized, multi-joint control delays. Performance is measured by the integral of the velocity error post-perturbation, validated against the standard Humanoid-v4 dense reward function to ensure motion stability is maintained under high-dimensional stress.
+
+
+Iteration 1:
+Idea: **Title:** Temporal Credit Assignment for Delayed Actuation in Humanoid-v4 via Recurrent Policy Architectures
+
+**Description:** This research investigates the impact of stochastic, non-stationary action-delay distributions on high-dimensional locomotion by comparing standard MLP-based SAC policies against GRU-augmented SAC agents. By injecting variable latency into the 17-dim action space of the Humanoid-v4 environment, we test the hypothesis that recurrent state representations can act as a temporal buffer to compensate for delayed control signals. The study focuses on measuring the "Recovery Time Constant"—defined as the interval required to return to 90% of nominal forward velocity following transient, multi-joint actuation disruptions. We utilize the 376-dim ground-truth state space to evaluate whether recurrent policies maintain superior stability and energy efficiency compared to MLP baselines under varying delay regimes. The final analysis will quantify the trade-off between recurrent memory depth and the sample efficiency required to achieve robust locomotion in high-dimensional continuous control.
+    
+
+Respond in the following format:
+
+\\begin{CRITIC}
+<CRITIC>
+\\end{CRITIC}
+
+In <CRITIC>, put your criticism to the idea. Try to be brief in the description.
+
+###### PROMPT ENDS ########
+
+###### RESPONSE [model: gemini-3.1-flash-lite-preview] ########
+\begin{CRITIC}
+*   **Data-Hypothesis Alignment (Fatal Flaw):** The `Humanoid-v4` state space (376-dim) is Markovian by design. Injecting external, non-stationary action delays *breaks* the Markov property of the environment. A GRU-augmented policy is a necessary, but insufficient, fix; without explicit inclusion of the "delay state" or "action history" in the observation vector, the agent cannot distinguish between a delayed response and a physical perturbation.
+*   **Feasibility & Noise:** The "Recovery Time Constant" metric is highly sensitive to the stochastic nature of the MuJoCo physics engine. In `Humanoid-v4`, small changes in joint torque lead to chaotic state transitions. Isolating the effect of "delay" from "inherent instability" will require an astronomical number of seeds to achieve statistical significance, potentially exceeding the efficiency of your compute budget.
+*   **Redundancy Check:** This is a re-packaging of Iteration 0. You have shifted from "latent-space perturbation" to "recurrent architectures," but the core problem—training a policy to handle non-stationary delays—remains an "adversarial training" problem in disguise. You are essentially training a robust controller without explicitly defining the uncertainty set.
+*   **Strategic Pivot:** 
+    1.  **Explicit State Augmentation:** Instead of relying solely on the GRU to "infer" the delay, augment the observation space with a sliding window of the last $k$ actions. This provides the inductive bias necessary for the policy to learn the temporal dependency.
+    2.  **Controlled Perturbation:** Rather than "stochastic, non-stationary" delays (which create a moving target that prevents convergence), use a curriculum-based delay injection (e.g., start with fixed 1-step delay, increase to variable).
+    3.  **Baseline Comparison:** Compare against a "Delay-Aware" MLP (using action history) to determine if the GRU's recurrent state is actually providing value, or if simple history-stacking is sufficient.
+\end{CRITIC}
+
+
+###### PROMPT BEGINS ########
+Human: 
+**Role**: Senior Research Scientific.
+**Objective**: Synthesize a primary research idea with expert criticism to produce a refined, groundbreaking, and technically feasible scientific objective.
+
+**Task**:
+You are in an iterative refinement loop (Iteration: 2). Your goal is to take the "Previous Idea," pass it through the filter of the "Critiques," and produce a "Hardened Idea" that is more scientifically rigorous and original than its predecessor.
+
+**Refinement Principles**:
+1. **Address Caveats**: If the critic mentioned a lack of feasibility, adjust the scope of the idea to fit the 'Data Description.'
+2. **Increase Specificity**: Move away from generic goals. Use the statistics and variables found in the data description to make the idea more concrete.
+3. **Internalize Feedback**: Do not explicitly mention the criticism or explain your changes. Instead, weave the solutions directly into the new version of the idea.
+4. **Maintain Grounding**: Ensure the "groundbreaking" aspect remains physically possible within the provided dataset's constraints.
+
+**Operational Constraints**:
+- **Brevity**: Keep the description concise but high-density (max 6 sentences).
+- **Format**: Do not include introductory text or meta-commentary about the process.
+- **Fidelity**: Stick strictly to the guidelines and physical realities described in the data description.
+- The idea must contain a title and a description of the idea
+
+**Input Data**:
+- **Data Description**: # Deep Reinforcement Learning on MuJoCo Continuous Control Benchmarks
+
+## Overview
+
+This project investigates novel reinforcement learning methods on standard MuJoCo continuous-control benchmarks from the Gymnasium library (gymnasium[mujoco], mujoco 3.8.0). MuJoCo provides physically realistic simulation of articulated robotic bodies, making it the standard testbed for evaluating deep RL algorithms on high-dimensional continuous action spaces.
+
+## Available Environments
+
+All standard MuJoCo Gymnasium environments are available:
+
+- **HalfCheetah-v4/v5** — 17-dim state, 6-dim action. Fast locomotion task for a 2D cheetah-like body. No termination condition. Dense reward based on forward velocity.
+- **Ant-v4/v5** — 27-dim state, 8-dim action. Ant locomotion in 3D. Episodes terminate if the ant falls over. Dense reward based on forward speed and control cost.
+- **Hopper-v4/v5** — 11-dim state, 3-dim action. Single-legged hopper. Terminates on falling. Requires balance and coordination.
+- **Walker2d-v4/v5** — 17-dim state, 6-dim action. Bipedal walker. Terminates on falling. Requires balance and forward locomotion.
+- **Humanoid-v4/v5** — 376-dim state, 17-dim action. Full humanoid body. High-dimensional, challenging exploration.
+- **Swimmer-v4/v5** — 8-dim state, 2-dim action. Underwater swimmer. Simple dynamics, no termination.
+- **Reacher-v4/v5** — 11-dim state, 2-dim action. 2-DOF arm reaching task. Sparse-ish reward.
+- **InvertedPendulum-v4/v5** — simple control baseline.
+
+## Hardware
+
+- NVIDIA RTX PRO 6000 Blackwell (96 GB VRAM), CUDA 13.0
+- PyTorch available at device='cuda'
+- 32 CPUs, 64 GB RAM
+- Parallel environment vectorization supported via gymnasium.vector
+
+## Standard Baselines
+
+For reference, well-known algorithms and their typical performance on these environments:
+- **SAC** (Soft Actor-Critic): state-of-the-art off-policy, HalfCheetah ~12,000 return, Ant ~5,000, Hopper ~3,500
+- **PPO**: on-policy, slightly lower sample efficiency
+- **TD3**: deterministic off-policy, strong on HalfCheetah
+- **DDPG**: original off-policy actor-critic
+
+## Research Directions of Interest
+
+Open questions in continuous-control RL include:
+- Sample efficiency improvements
+- Transfer learning and generalization across tasks
+- Incorporating physical priors or structure into policy/value networks
+- Reward shaping and curriculum learning
+- Multi-task and meta-learning
+- Safe RL / constraint satisfaction
+- Exploration strategies in high-dimensional spaces
+
+## File Paths
+
+No pre-existing data files. All experience is generated online via environment interaction.
+Environments instantiated as: `gymnasium.make('HalfCheetah-v4')` etc.
+
+- **Previous Versions**: 
+
+
+
+Iteration 0:
+Idea: **Title:** Latent-Space Perturbation via Adversarial Latency Injection for Robust Humanoid Locomotion
+
+**Description:** This research implements a robust control framework for the Humanoid-v4 environment by injecting non-stationary, stochastic latency into the action-space pipeline during training. By modeling actuator delays as a time-varying latent variable, we force the policy to learn a compensatory predictive structure that minimizes recovery latency following transient perturbations. We utilize the high-dimensional 376-dim observation space to train an encoder that maps delayed sensory feedback to a stable internal state, effectively mitigating sensor drift. The objective is to achieve a significantly faster return to steady-state velocity compared to standard SAC baselines when subjected to randomized, multi-joint control delays. Performance is measured by the integral of the velocity error post-perturbation, validated against the standard Humanoid-v4 dense reward function to ensure motion stability is maintained under high-dimensional stress.
+
+
+Iteration 1:
+Idea: **Title:** Temporal Credit Assignment for Delayed Actuation in Humanoid-v4 via Recurrent Policy Architectures
+
+**Description:** This research investigates the impact of stochastic, non-stationary action-delay distributions on high-dimensional locomotion by comparing standard MLP-based SAC policies against GRU-augmented SAC agents. By injecting variable latency into the 17-dim action space of the Humanoid-v4 environment, we test the hypothesis that recurrent state representations can act as a temporal buffer to compensate for delayed control signals. The study focuses on measuring the "Recovery Time Constant"—defined as the interval required to return to 90% of nominal forward velocity following transient, multi-joint actuation disruptions. We utilize the 376-dim ground-truth state space to evaluate whether recurrent policies maintain superior stability and energy efficiency compared to MLP baselines under varying delay regimes. The final analysis will quantify the trade-off between recurrent memory depth and the sample efficiency required to achieve robust locomotion in high-dimensional continuous control.
+
+- **Critical Feedback**: *   **Data-Hypothesis Alignment (Fatal Flaw):** The `Humanoid-v4` state space (376-dim) is Markovian by design. Injecting external, non-stationary action delays *breaks* the Markov property of the environment. A GRU-augmented policy is a necessary, but insufficient, fix; without explicit inclusion of the "delay state" or "action history" in the observation vector, the agent cannot distinguish between a delayed response and a physical perturbation.
+*   **Feasibility & Noise:** The "Recovery Time Constant" metric is highly sensitive to the stochastic nature of the MuJoCo physics engine. In `Humanoid-v4`, small changes in joint torque lead to chaotic state transitions. Isolating the effect of "delay" from "inherent instability" will require an astronomical number of seeds to achieve statistical significance, potentially exceeding the efficiency of your compute budget.
+*   **Redundancy Check:** This is a re-packaging of Iteration 0. You have shifted from "latent-space perturbation" to "recurrent architectures," but the core problem—training a policy to handle non-stationary delays—remains an "adversarial training" problem in disguise. You are essentially training a robust controller without explicitly defining the uncertainty set.
+*   **Strategic Pivot:** 
+    1.  **Explicit State Augmentation:** Instead of relying solely on the GRU to "infer" the delay, augment the observation space with a sliding window of the last $k$ actions. This provides the inductive bias necessary for the policy to learn the temporal dependency.
+    2.  **Controlled Perturbation:** Rather than "stochastic, non-stationary" delays (which create a moving target that prevents convergence), use a curriculum-based delay injection (e.g., start with fixed 1-step delay, increase to variable).
+    3.  **Baseline Comparison:** Compare against a "Delay-Aware" MLP (using action history) to determine if the GRU's recurrent state is actually providing value, or if simple history-stacking is sufficient.
+
+Respond in the following format:
+
+\\begin{IDEA}
+<IDEA>
+\\end{IDEA}
+
+In <IDEA>, put the refined idea. 
+
+###### PROMPT ENDS ########
+
+###### RESPONSE [model: gemini-3.1-flash-lite-preview] ########
+\begin{IDEA}
+**Title: Action-History Augmentation for Robust Control in Humanoid-v4 Under Latency Constraints**
+
+**Description:** This research evaluates the efficacy of explicit action-history stacking versus recurrent neural architectures in solving the non-Markovian control problem introduced by variable actuator latency in the 376-dim Humanoid-v4 environment. We augment the observation space with a sliding window of the $k$ most recent actions, providing the policy with the necessary inductive bias to distinguish between intrinsic physical dynamics and delayed control signals. To ensure convergence, we implement a curriculum-based delay schedule that gradually increases the variance of the injection window from a fixed 1-step latency to a stochastic distribution. The study compares a history-augmented MLP against a GRU-augmented SAC agent to determine if the additional temporal capacity of recurrent states provides a statistically significant improvement in forward velocity maintenance under high-dimensional stress. Performance is benchmarked by evaluating the cumulative return and the mean recovery time to steady-state velocity across 50 independent random seeds, ensuring statistical significance despite the inherent stochasticity of the MuJoCo physics engine. This approach isolates the impact of temporal awareness on stability, providing a clear baseline for robust locomotion in high-latency, high-dimensional robotics.
+\end{IDEA}
+

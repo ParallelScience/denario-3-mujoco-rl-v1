@@ -1,0 +1,130 @@
+
+###### PROMPT BEGINS ########
+Human: 
+**Role**: Senior Scientific Lead and Peer Reviewer.
+**Objective**: Critically evaluate 10 proposed research ideas and select the single most impactful project to move into the planning phase.
+
+**Evaluation Framework**:
+To determine the "largest scientific impact," you must weigh each idea against the following four pillars:
+1. **Feasibility**: Given the constraints in the 'Data Description,' can this project actually be executed with the available variables?
+2. **Novelty**: Does the idea offer a fresh perspective, or is it a standard, derivative analysis?
+3. **Rigour**: Does the idea suggest a deep investigation into the underlying physics/logic of the data?
+4. **Utility**: Will the results provide actionable insights or significantly enhance our understanding of the system?
+5. The idea selected should be as different as possible to any previous ideas.
+
+**Task**:
+1. Review the proposed 10 research ideas along with any previous ideas.
+2. Review the 'Data Description' to ensure the ideas are physically and statistically grounded.
+3. Select the **one** idea that best balances innovation with scientific feasibility.
+4. The selected idea must contain a title and a description of it.
+
+**Operational Constraints**:
+- Do not provide a list of pros and cons.
+- Do not modify the original text of the idea.
+- Provide **only** the text of the selected idea within the required tags.
+
+Data description:
+# Deep Reinforcement Learning on MuJoCo Continuous Control Benchmarks
+
+## Overview
+
+This project investigates novel reinforcement learning methods on standard MuJoCo continuous-control benchmarks from the Gymnasium library (gymnasium[mujoco], mujoco 3.8.0). MuJoCo provides physically realistic simulation of articulated robotic bodies, making it the standard testbed for evaluating deep RL algorithms on high-dimensional continuous action spaces.
+
+## Available Environments
+
+All standard MuJoCo Gymnasium environments are available:
+
+- **HalfCheetah-v4/v5** — 17-dim state, 6-dim action. Fast locomotion task for a 2D cheetah-like body. No termination condition. Dense reward based on forward velocity.
+- **Ant-v4/v5** — 27-dim state, 8-dim action. Ant locomotion in 3D. Episodes terminate if the ant falls over. Dense reward based on forward speed and control cost.
+- **Hopper-v4/v5** — 11-dim state, 3-dim action. Single-legged hopper. Terminates on falling. Requires balance and coordination.
+- **Walker2d-v4/v5** — 17-dim state, 6-dim action. Bipedal walker. Terminates on falling. Requires balance and forward locomotion.
+- **Humanoid-v4/v5** — 376-dim state, 17-dim action. Full humanoid body. High-dimensional, challenging exploration.
+- **Swimmer-v4/v5** — 8-dim state, 2-dim action. Underwater swimmer. Simple dynamics, no termination.
+- **Reacher-v4/v5** — 11-dim state, 2-dim action. 2-DOF arm reaching task. Sparse-ish reward.
+- **InvertedPendulum-v4/v5** — simple control baseline.
+
+## Hardware
+
+- NVIDIA RTX PRO 6000 Blackwell (96 GB VRAM), CUDA 13.0
+- PyTorch available at device='cuda'
+- 32 CPUs, 64 GB RAM
+- Parallel environment vectorization supported via gymnasium.vector
+
+## Standard Baselines
+
+For reference, well-known algorithms and their typical performance on these environments:
+- **SAC** (Soft Actor-Critic): state-of-the-art off-policy, HalfCheetah ~12,000 return, Ant ~5,000, Hopper ~3,500
+- **PPO**: on-policy, slightly lower sample efficiency
+- **TD3**: deterministic off-policy, strong on HalfCheetah
+- **DDPG**: original off-policy actor-critic
+
+## Research Directions of Interest
+
+Open questions in continuous-control RL include:
+- Sample efficiency improvements
+- Transfer learning and generalization across tasks
+- Incorporating physical priors or structure into policy/value networks
+- Reward shaping and curriculum learning
+- Multi-task and meta-learning
+- Safe RL / constraint satisfaction
+- Exploration strategies in high-dimensional spaces
+
+## File Paths
+
+No pre-existing data files. All experience is generated online via environment interaction.
+Environments instantiated as: `gymnasium.make('HalfCheetah-v4')` etc.
+
+
+Proposed ideas:
+1. **Morphological Symmetry Breaking in Locomotion**
+Does the introduction of controlled physical asymmetries in the agent's body during training lead to more robust locomotion policies in uneven terrain? This research investigates whether symmetry-breaking forces the policy to develop generalized recovery behaviors rather than gait-specific patterns. The objective is to determine if "imperfect" robots achieve higher performance stability when transferred to standard symmetric environments.
+
+2. **Energy-Optimal Policy Manifolds**
+Can we redefine the reward objective to prioritize metabolic efficiency over raw velocity without sacrificing completion speed? This study explores the latent geometry of energy-efficient movement patterns in high-dimensional humanoid spaces. The goal is to discover if there exists a Pareto-optimal manifold that bridges the gap between maximum speed and minimal torque expenditure.
+
+3. **Intrinsic Curiosity via Proprioceptive Prediction**
+Instead of extrinsic rewards, can an agent learn complex locomotion solely by maximizing its ability to predict its own future proprioceptive state? This project tests whether state-space transition modeling acts as a sufficient unsupervised signal for high-dimensional motor control. The research objective is to decouple learning from external reward signals to facilitate discovery in sparse-reward environments like the Reacher.
+
+4. **Curriculum Learning through Gravity Scaling**
+Does training an agent on a curriculum of varying gravitational constants accelerate the mastery of high-dimensional environments like the Humanoid? By gradually shifting physical dynamics, we investigate whether the policy learns a more fundamental internal representation of physics. The objective is to evaluate if "gravity-aware" agents demonstrate superior zero-shot transfer to standard gravity conditions.
+
+5. **Cross-Morphology Skill Distillation**
+Can motor skills acquired by a simple agent (e.g., Hopper) be distilled into the high-dimensional action space of a complex agent (e.g., Humanoid) to provide a warm-start for training? This idea explores the feasibility of mapping low-dimensional control primitives onto high-dimensional articulated bodies. The objective is to establish a hierarchy of skill transfer across distinct physical morphologies.
+
+6. **Constraint-Aware Latent Policy Optimization**
+Can we embed physical safety constraints (such as preventing joint over-extension) directly into the latent space of the policy rather than treating them as penalty terms in the reward function? This research explores the use of differentiable projection layers to enforce kinematic feasibility. The objective is to achieve "hard" safety guarantees that do not interfere with the gradient flow of the RL agent.
+
+7. **Temporal Abstraction via Proprioceptive Rhythms**
+Can we identify and exploit inherent cyclic motor rhythms in locomotion tasks to simplify the control problem into hierarchical sub-tasks? By decomposing continuous actions into rhythmic primitives and high-level modulation, we examine if this reduces the dimensionality of the required exploration. The objective is to determine if temporal abstraction outperforms monolithic control in high-DOF robots.
+
+8. **Epistemic Uncertainty-Driven Exploration**
+How does explicitly modeling the agent's uncertainty regarding its own dynamics influence exploration in environments with high-dimensional state spaces? This study examines if targeting areas of high model disagreement leads to faster discovery of complex maneuvers. The objective is to prove that epistemic-driven exploration is more effective than traditional stochastic noise for high-DOF control.
+
+9. **Robustness to Sensor Latency and Jitter**
+Can agents trained with randomized temporal delays and sensor noise develop "perceptual robustness" that mimics real-world robotic deployment? This project investigates whether injecting stochastic latency into the observation stream forces the policy to learn proactive, predictive control. The research objective is to quantify the trade-off between control precision and robustness to delayed feedback.
+
+10. **Neuro-Symbolic Reward Shaping**
+Can we derive complex, non-linear reward functions automatically by using symbolic regression to optimize for long-term task success? By evolving the reward structure itself, we investigate if we can eliminate the manual tuning of dense reward weights. The objective is to discover "emergent" reward functions that outperform standard velocity-based heuristics in multi-objective tasks.
+
+
+
+
+
+
+
+Respond in exactly the following format:
+
+\\begin{IDEA}
+<IDEA>
+\\end{IDEA}
+
+In <IDEA>, put the idea you have selected
+
+###### PROMPT ENDS ########
+
+###### RESPONSE [model: gemini-3.1-flash-lite-preview] ########
+\begin{IDEA}
+**Morphological Symmetry Breaking in Locomotion**
+Does the introduction of controlled physical asymmetries in the agent's body during training lead to more robust locomotion policies in uneven terrain? This research investigates whether symmetry-breaking forces the policy to develop generalized recovery behaviors rather than gait-specific patterns. The objective is to determine if "imperfect" robots achieve higher performance stability when transferred to standard symmetric environments.
+\end{IDEA}
+

@@ -1,21 +1,41 @@
-1. **Environment Wrapper Implementation**: Develop a custom Gymnasium wrapper to simulate actuator latency. The wrapper must maintain a circular buffer of the last $N$ actions and delay the application of the agent's output to the environment by a specified number of steps. Implement a dynamic delay mechanism supporting both fixed delays and stochastic delays sampled from $\text{Uniform}(0, k)$ to facilitate the curriculum latency schedule.
+**CRITICAL IMPLEMENTATION REQUIREMENT**: Use `stable-baselines3` (SB3) for all SAC training. Do NOT implement SAC from scratch. Do NOT generate synthetic or simulated training curves. All results must come from real environment interaction and real model training.
 
-2. **Baseline and Architecture Setup**: Implement the Soft Actor-Critic (SAC) algorithm. 
-    - Condition A (Baseline): Standard MLP actor/critic.
-    - Condition B (History-MLP): MLP actor/critic with input augmented by the last $k=3$ actions.
-    - Condition C (GRU-SAC): Actor/critic using GRU layers to process temporal sequences.
-    - Ensure all architectures share consistent hyperparameter settings (learning rate, entropy target, batch size) and implement gradient clipping to maintain stability, particularly for the GRU-based model.
+1. **Environment Wrapper Implementation**: 
+   - Develop a custom `gymnasium.Wrapper` that simulates actuator latency via a circular action buffer.
+   - The wrapper delays the applied action by `current_delay` steps.
+   - Implement a `set_delay(n)` method to allow changing the delay during training.
+   - For Condition B (History-MLP): augment the observation by concatenating the last k=3 actions to the state vector.
 
-3. **Replay Buffer Strategy**: Implement two types of replay buffers:
-    - Standard Replay Buffer for Conditions A and B, storing independent transitions $(s, a, r, s')$.
-    - Sequence-based Replay Buffer for Condition C, storing contiguous trajectories of length $L$ (e.g., $L=20$). This allows the GRU to maintain temporal dependencies during training updates via Truncated Backpropagation Through Time (TBPTT) without requiring the storage of hidden states.
+2. **SAC Training with stable-baselines3**:
+   - Use `stable_baselines3.SAC` for all conditions. Do NOT write a custom SAC.
+   - **Condition A (Baseline)**: `SAC("MlpPolicy", env_A, ...)` — standard MLP, no history.
+   - **Condition B (History-MLP)**: `SAC("MlpPolicy", env_B, ...)` where `env_B` is the latency wrapper with observation augmented by last k=3 actions.
+   - **Condition C (GRU-SAC)**: `SAC("MlpPolicy", env_C, policy_kwargs=dict(net_arch=[256,256]))` — for simplicity in this PoC, use a longer action history (k=5 or k=10 actions concatenated) as a proxy for temporal context, since SB3 does not natively support GRU policies. Label this "Extended-History SAC" in reporting.
+   - Training: **100,000 steps** per condition (not 500k — reduce for PoC speed).
+   - Use `device='cuda'` for GPU training.
 
-4. **Curriculum Latency Training**: Train all three conditions under an identical curriculum latency schedule to ensure a fair comparison of architectural robustness. Start with a fixed 1-step delay for the first 100,000 steps, then transition to a stochastic delay $\text{Uniform}(0, k)$ where $k$ scales linearly from 1 to 3 over the remaining 400,000 steps.
+3. **Curriculum Latency Schedule**:
+   - First 50,000 steps: fixed 1-step delay.
+   - Steps 50,000–100,000: stochastic delay from Uniform(0, 3) steps, resampled each episode.
+   - Implement this by updating `env.set_delay(...)` at each episode start.
+   - Use SB3's `callback` mechanism (e.g., `BaseCallback`) to update the delay schedule during training.
 
-5. **Experimental Rigor**: To ensure statistical significance, run each condition with 1 random seed (proof-of-concept). Monitor training performance using cumulative return and mean forward velocity.
+4. **Training Execution**:
+   - Train each condition sequentially using `model.learn(total_timesteps=100_000, callback=latency_callback)`.
+   - Log episode rewards using SB3's built-in logging (tensorboard or `EvalCallback`).
+   - Save each trained model: `model.save("data/sac_condition_A")` etc.
 
-6. **Evaluation Protocol**: Conduct periodic evaluations every 10,000 environment steps. During evaluation, disable stochasticity and test each agent against a range of fixed latencies (0, 1, 2, 3, and 5 steps). This "robustness profile" will measure how well each architecture generalizes to latencies both within and outside the training curriculum.
+5. **Robustness Evaluation**:
+   - After training, evaluate each saved model at fixed latencies: 0, 1, 2, 3, 5 steps.
+   - For each latency: run 5 evaluation episodes using `model.predict(obs, deterministic=True)`.
+   - Record mean episode return and mean forward velocity (from `info['x_velocity']`).
 
-7. **Data Aggregation and Analysis**: Generate learning curves for all three conditions. Document the performance gap between the baseline and the augmented architectures.
+6. **Visualization**:
+   - Plot learning curves: episode return vs training steps for all 3 conditions.
+   - Plot robustness profiles: mean return vs latency level for all 3 conditions.
+   - Save all plots as PNG files in the data directory.
 
-8. **Comparative Analysis**: Analyze the results to answer the research questions: determine if explicit history stacking (Condition B) or learned temporal representations (Condition C) provide superior recovery of performance, and quantify the degradation of the baseline (Condition A) as latency increases.
+7. **Reporting**:
+   - Report only results from actual trained models evaluated in the real environment.
+   - If training fails or produces poor results, report that honestly.
+   - Compare final training returns and robustness profiles across the 3 conditions.

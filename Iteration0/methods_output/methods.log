@@ -1,0 +1,278 @@
+
+###### PROMPT BEGINS ########
+Human: You are provided with a data description and an idea for a scientific paper. Your task is to think about the methods to use in order to carry it out. If this is not first iteration, you will also be provided with the previous research plan along with some feedback on it. If this is the case, take into account the feedback provided when designing the new research plan.
+
+Follow these instructions:
+- generate a detailed description of the methodology that will be used to perform the research project.
+- The description should clearly outline the steps, techniques, and rationale derived from the exploratory data analysis (EDA).
+- The focus should be strictly on the methods and workflow for this specific project to be performed. **do not include** any discussion of future directions, future work, project extensions, or limitations.
+- The description should be written as if it were a senior researcher explaining to her research assistant how to perform the research necessary for this project.
+- Just provide the methods, do not add a sentence at the beginning saying showing your thinking process
+- Your report will be sent to coding agents. Thus, do not write code here.
+- The research plan should include no more than 8 steps. Each of these steps can have several substeps
+- If feedback is present, you are allowed to edit steps and also remove steps if they are not needed for new iterations
+
+Data description:
+# Deep Reinforcement Learning on MuJoCo Continuous Control Benchmarks
+
+## Overview
+
+This project investigates novel reinforcement learning methods on standard MuJoCo continuous-control benchmarks from the Gymnasium library (gymnasium[mujoco], mujoco 3.8.0). MuJoCo provides physically realistic simulation of articulated robotic bodies, making it the standard testbed for evaluating deep RL algorithms on high-dimensional continuous action spaces.
+
+## Available Environments
+
+All standard MuJoCo Gymnasium environments are available:
+
+- **HalfCheetah-v4/v5** — 17-dim state, 6-dim action. Fast locomotion task for a 2D cheetah-like body. No termination condition. Dense reward based on forward velocity.
+- **Ant-v4/v5** — 27-dim state, 8-dim action. Ant locomotion in 3D. Episodes terminate if the ant falls over. Dense reward based on forward speed and control cost.
+- **Hopper-v4/v5** — 11-dim state, 3-dim action. Single-legged hopper. Terminates on falling. Requires balance and coordination.
+- **Walker2d-v4/v5** — 17-dim state, 6-dim action. Bipedal walker. Terminates on falling. Requires balance and forward locomotion.
+- **Humanoid-v4/v5** — 376-dim state, 17-dim action. Full humanoid body. High-dimensional, challenging exploration.
+- **Swimmer-v4/v5** — 8-dim state, 2-dim action. Underwater swimmer. Simple dynamics, no termination.
+- **Reacher-v4/v5** — 11-dim state, 2-dim action. 2-DOF arm reaching task. Sparse-ish reward.
+- **InvertedPendulum-v4/v5** — simple control baseline.
+
+## Hardware
+
+- NVIDIA RTX PRO 6000 Blackwell (96 GB VRAM), CUDA 13.0
+- PyTorch available at device='cuda'
+- 32 CPUs, 64 GB RAM
+- Parallel environment vectorization supported via gymnasium.vector
+
+## Standard Baselines
+
+For reference, well-known algorithms and their typical performance on these environments:
+- **SAC** (Soft Actor-Critic): state-of-the-art off-policy, HalfCheetah ~12,000 return, Ant ~5,000, Hopper ~3,500
+- **PPO**: on-policy, slightly lower sample efficiency
+- **TD3**: deterministic off-policy, strong on HalfCheetah
+- **DDPG**: original off-policy actor-critic
+
+## Research Directions of Interest
+
+Open questions in continuous-control RL include:
+- Sample efficiency improvements
+- Transfer learning and generalization across tasks
+- Incorporating physical priors or structure into policy/value networks
+- Reward shaping and curriculum learning
+- Multi-task and meta-learning
+- Safe RL / constraint satisfaction
+- Exploration strategies in high-dimensional spaces
+
+## File Paths
+
+No pre-existing data files. All experience is generated online via environment interaction.
+Environments instantiated as: `gymnasium.make('HalfCheetah-v4')` etc.
+
+
+Idea:
+**Title: Action-History Augmentation for Robust Control Under Actuator Latency**
+
+**Description:** In real robotic systems, there is always actuator latency — control commands are applied with a delay, meaning the agent's current observation reflects a state that predates the most recent action. This breaks the Markov property and degrades policies trained under the standard zero-latency assumption. This research evaluates the efficacy of explicit **action-history stacking** versus a **GRU-augmented policy** for handling variable actuator latency in continuous-control locomotion.
+
+We use **HalfCheetah-v4** as the primary testbed — a relatively simple, fast-converging environment (no termination condition, dense velocity reward) that is well-suited for proof-of-concept work.
+
+Three conditions are compared using SAC:
+
+- **Condition A (Baseline)**: Standard SAC with zero-latency (Markovian) control.
+- **Condition B (History-MLP)**: Observation augmented with the last $k=3$ actions stacked onto the state vector. Standard MLP policy.
+- **Condition C (GRU-SAC)**: Policy uses a GRU to encode the observation history, giving the agent a learned temporal representation.
+
+All three are trained under a **curriculum latency schedule**: training starts with a fixed 1-step delay, then gradually introduces stochastic delays drawn from $\text{Uniform}(0, k)$ steps as training progresses.
+
+**Proof-of-concept setup**: 1 random seed, 500,000 environment steps per condition. Performance is measured by cumulative return and mean forward velocity at evaluation.
+
+The key questions:
+1. Does action-history stacking recover performance lost to latency?
+2. Does the GRU's additional temporal capacity provide a further advantage?
+3. How does the baseline (no latency handling) degrade as delay increases?
+
+
+Previous research plan:
+None
+
+Feedback on previous research plan:
+None
+
+
+Respond in this format:
+
+\\begin{METHODS}
+<METHODS>
+\\end{METHODS}
+
+In <METHODS> put the methods you have generated.
+
+###### PROMPT ENDS ########
+
+###### RESPONSE [model: gemini-3.1-flash-lite-preview] ########
+\begin{METHODS}
+1. **Environment Wrapper Implementation**: Develop a custom Gymnasium wrapper to simulate actuator latency. The wrapper must maintain a buffer of the last $N$ actions and delay the application of the agent's output to the environment by a specified number of steps. Implement a dynamic delay mechanism that supports both fixed delays and stochastic delays sampled from $\text{Uniform}(0, k)$ to facilitate the curriculum latency schedule.
+
+2. **Baseline SAC Architecture**: Implement the standard Soft Actor-Critic (SAC) algorithm using an MLP-based actor and twin-Q critic networks. Ensure the implementation supports the standard Markovian state space (17-dim for HalfCheetah-v4) to serve as the Condition A baseline.
+
+3. **Condition B (History-MLP) Setup**: Modify the observation space to include a concatenated vector of the last $k=3$ actions. Update the input layer of the MLP policy and critic networks to accommodate the augmented state dimension (17 + (3 * 6) = 35 dimensions). Ensure the action buffer is correctly managed during the environment step loop to provide the most recent history to the agent.
+
+4. **Condition C (GRU-SAC) Setup**: Replace the standard MLP actor and critic backbones with GRU-based architectures. The GRU should process the current observation and maintain a hidden state across time steps. Ensure the hidden state is correctly reset at the beginning of each episode and that the temporal representation is passed through the policy and value heads.
+
+5. **Curriculum Latency Schedule**: Define a training schedule where the latency parameter $k$ increases linearly over the 500,000 environment steps. Start with a fixed 1-step delay for the first 100,000 steps, then transition to a stochastic delay $\text{Uniform}(0, k)$ where $k$ scales from 1 to 3 over the remaining training duration.
+
+6. **Training Protocol**: Execute training for all three conditions (Baseline, History-MLP, GRU-SAC) using identical hyperparameters (learning rate, batch size, entropy coefficient, and replay buffer size). Use the provided RTX PRO 6000 hardware to run these experiments in parallel, ensuring that the replay buffer for the GRU-SAC condition stores sequences or hidden states appropriately to maintain temporal consistency.
+
+7. **Evaluation Framework**: Conduct periodic evaluations every 10,000 environment steps. During evaluation, disable the stochasticity of the latency (set to a fixed delay) to measure the agent's robustness to specific latency levels. Record cumulative return and mean forward velocity for each condition.
+
+8. **Comparative Analysis**: Aggregate the evaluation metrics to generate learning curves for all three conditions. Perform a comparative analysis of the final performance to determine if the explicit history stacking (Condition B) or the learned temporal representation (Condition C) provides superior recovery of the performance lost to latency compared to the baseline (Condition A).
+\end{METHODS}
+
+
+###### PROMPT BEGINS ########
+Human: You are provided with a data description, an idea, a research plan to carry out the idea, and some suggestions to improve the research plan.
+- Your tasks is to improve the current research plan taking into account the suggestions, if they make sense. 
+- Do not write code in the research plan. 
+- Another agent will take your report and will write code according to it. 
+- The research plan should include no more than 8 steps. Each of these steps can have several substeps.
+
+Data description:
+# Deep Reinforcement Learning on MuJoCo Continuous Control Benchmarks
+
+## Overview
+
+This project investigates novel reinforcement learning methods on standard MuJoCo continuous-control benchmarks from the Gymnasium library (gymnasium[mujoco], mujoco 3.8.0). MuJoCo provides physically realistic simulation of articulated robotic bodies, making it the standard testbed for evaluating deep RL algorithms on high-dimensional continuous action spaces.
+
+## Available Environments
+
+All standard MuJoCo Gymnasium environments are available:
+
+- **HalfCheetah-v4/v5** — 17-dim state, 6-dim action. Fast locomotion task for a 2D cheetah-like body. No termination condition. Dense reward based on forward velocity.
+- **Ant-v4/v5** — 27-dim state, 8-dim action. Ant locomotion in 3D. Episodes terminate if the ant falls over. Dense reward based on forward speed and control cost.
+- **Hopper-v4/v5** — 11-dim state, 3-dim action. Single-legged hopper. Terminates on falling. Requires balance and coordination.
+- **Walker2d-v4/v5** — 17-dim state, 6-dim action. Bipedal walker. Terminates on falling. Requires balance and forward locomotion.
+- **Humanoid-v4/v5** — 376-dim state, 17-dim action. Full humanoid body. High-dimensional, challenging exploration.
+- **Swimmer-v4/v5** — 8-dim state, 2-dim action. Underwater swimmer. Simple dynamics, no termination.
+- **Reacher-v4/v5** — 11-dim state, 2-dim action. 2-DOF arm reaching task. Sparse-ish reward.
+- **InvertedPendulum-v4/v5** — simple control baseline.
+
+## Hardware
+
+- NVIDIA RTX PRO 6000 Blackwell (96 GB VRAM), CUDA 13.0
+- PyTorch available at device='cuda'
+- 32 CPUs, 64 GB RAM
+- Parallel environment vectorization supported via gymnasium.vector
+
+## Standard Baselines
+
+For reference, well-known algorithms and their typical performance on these environments:
+- **SAC** (Soft Actor-Critic): state-of-the-art off-policy, HalfCheetah ~12,000 return, Ant ~5,000, Hopper ~3,500
+- **PPO**: on-policy, slightly lower sample efficiency
+- **TD3**: deterministic off-policy, strong on HalfCheetah
+- **DDPG**: original off-policy actor-critic
+
+## Research Directions of Interest
+
+Open questions in continuous-control RL include:
+- Sample efficiency improvements
+- Transfer learning and generalization across tasks
+- Incorporating physical priors or structure into policy/value networks
+- Reward shaping and curriculum learning
+- Multi-task and meta-learning
+- Safe RL / constraint satisfaction
+- Exploration strategies in high-dimensional spaces
+
+## File Paths
+
+No pre-existing data files. All experience is generated online via environment interaction.
+Environments instantiated as: `gymnasium.make('HalfCheetah-v4')` etc.
+
+
+Idea:
+**Title: Action-History Augmentation for Robust Control Under Actuator Latency**
+
+**Description:** In real robotic systems, there is always actuator latency — control commands are applied with a delay, meaning the agent's current observation reflects a state that predates the most recent action. This breaks the Markov property and degrades policies trained under the standard zero-latency assumption. This research evaluates the efficacy of explicit **action-history stacking** versus a **GRU-augmented policy** for handling variable actuator latency in continuous-control locomotion.
+
+We use **HalfCheetah-v4** as the primary testbed — a relatively simple, fast-converging environment (no termination condition, dense velocity reward) that is well-suited for proof-of-concept work.
+
+Three conditions are compared using SAC:
+
+- **Condition A (Baseline)**: Standard SAC with zero-latency (Markovian) control.
+- **Condition B (History-MLP)**: Observation augmented with the last $k=3$ actions stacked onto the state vector. Standard MLP policy.
+- **Condition C (GRU-SAC)**: Policy uses a GRU to encode the observation history, giving the agent a learned temporal representation.
+
+All three are trained under a **curriculum latency schedule**: training starts with a fixed 1-step delay, then gradually introduces stochastic delays drawn from $\text{Uniform}(0, k)$ steps as training progresses.
+
+**Proof-of-concept setup**: 1 random seed, 500,000 environment steps per condition. Performance is measured by cumulative return and mean forward velocity at evaluation.
+
+The key questions:
+1. Does action-history stacking recover performance lost to latency?
+2. Does the GRU's additional temporal capacity provide a further advantage?
+3. How does the baseline (no latency handling) degrade as delay increases?
+
+
+Current research plan:
+1. **Environment Wrapper Implementation**: Develop a custom Gymnasium wrapper to simulate actuator latency. The wrapper must maintain a buffer of the last $N$ actions and delay the application of the agent's output to the environment by a specified number of steps. Implement a dynamic delay mechanism that supports both fixed delays and stochastic delays sampled from $\text{Uniform}(0, k)$ to facilitate the curriculum latency schedule.
+
+2. **Baseline SAC Architecture**: Implement the standard Soft Actor-Critic (SAC) algorithm using an MLP-based actor and twin-Q critic networks. Ensure the implementation supports the standard Markovian state space (17-dim for HalfCheetah-v4) to serve as the Condition A baseline.
+
+3. **Condition B (History-MLP) Setup**: Modify the observation space to include a concatenated vector of the last $k=3$ actions. Update the input layer of the MLP policy and critic networks to accommodate the augmented state dimension (17 + (3 * 6) = 35 dimensions). Ensure the action buffer is correctly managed during the environment step loop to provide the most recent history to the agent.
+
+4. **Condition C (GRU-SAC) Setup**: Replace the standard MLP actor and critic backbones with GRU-based architectures. The GRU should process the current observation and maintain a hidden state across time steps. Ensure the hidden state is correctly reset at the beginning of each episode and that the temporal representation is passed through the policy and value heads.
+
+5. **Curriculum Latency Schedule**: Define a training schedule where the latency parameter $k$ increases linearly over the 500,000 environment steps. Start with a fixed 1-step delay for the first 100,000 steps, then transition to a stochastic delay $\text{Uniform}(0, k)$ where $k$ scales from 1 to 3 over the remaining training duration.
+
+6. **Training Protocol**: Execute training for all three conditions (Baseline, History-MLP, GRU-SAC) using identical hyperparameters (learning rate, batch size, entropy coefficient, and replay buffer size). Use the provided RTX PRO 6000 hardware to run these experiments in parallel, ensuring that the replay buffer for the GRU-SAC condition stores sequences or hidden states appropriately to maintain temporal consistency.
+
+7. **Evaluation Framework**: Conduct periodic evaluations every 10,000 environment steps. During evaluation, disable the stochasticity of the latency (set to a fixed delay) to measure the agent's robustness to specific latency levels. Record cumulative return and mean forward velocity for each condition.
+
+8. **Comparative Analysis**: Aggregate the evaluation metrics to generate learning curves for all three conditions. Perform a comparative analysis of the final performance to determine if the explicit history stacking (Condition B) or the learned temporal representation (Condition C) provides superior recovery of the performance lost to latency compared to the baseline (Condition A).
+
+Suggestions:
+
+
+        Suggestion #1:
+        content='1. **Replay Buffer Handling for GRU-SAC**: Standard SAC uses an off-policy replay buffer that samples transitions independently. For GRU-based policies (Condition C), sampling independent transitions breaks the temporal dependency required for the hidden state. You should specify that the GRU-SAC implementation must use a **Sequence Replay Buffer** (storing trajectories or sequences of length $L$) to allow the GRU to maintain its hidden state during training updates.\n\n2. **Evaluation Protocol Refinement**: In Step 7, you mention disabling stochasticity during evaluation. To provide a more robust comparison, you should evaluate each condition across a **range of fixed latencies** (e.g., 0, 1, 2, 3, and 5 steps) at the end of training. This will reveal the "generalization" capability of each agent to latencies outside the specific curriculum range.\n\n3. **Hidden State Management**: For the GRU-SAC, clarify that the hidden state must be stored in the replay buffer alongside the observation and action, or that the training loop must perform a "burn-in" period to re-initialize the hidden state before computing gradients.\n\n4. **Baseline Consistency**: Ensure that the "Baseline" (Condition A) is also evaluated under the same latency conditions as B and C. It is important to see if the baseline fails completely or just degrades, which provides the necessary context for the performance gains of the other two methods.\n\n5. **Hyperparameter Sensitivity**: Since GRU-based RL is notoriously sensitive to hyperparameters (e.g., learning rate, sequence length), consider adding a small note to ensure that the learning rate for the GRU-SAC is tuned or at least kept consistent with the MLP-based conditions to ensure a fair comparison.' additional_kwargs={} response_metadata={} id='b6bd524f-a4d6-4f12-bd97-cf4f9da94337'
+
+
+
+        Suggestion #2:
+        content='1. **Replay Buffer Handling for GRU-SAC**: In Step 6, you mention storing hidden states in the replay buffer. Note that for off-policy algorithms like SAC, storing hidden states is problematic because the hidden state depends on the policy weights at the time of collection. I suggest using **Truncated Backpropagation Through Time (TBPTT)** or storing sequences of transitions (e.g., sequences of length 10-20) in the replay buffer to allow the GRU to be trained effectively without needing to store/restore hidden states during sampling.\n\n2. **Evaluation Protocol Consistency**: In Step 7, you mention disabling stochasticity during evaluation. To ensure a fair comparison, you should evaluate all three conditions across the *same* range of fixed latencies (e.g., 0, 1, 2, and 3 steps) to create a "robustness profile" for each model, rather than just testing at a single fixed delay.\n\n3. **Baseline Definition**: Ensure that the "Baseline" (Condition A) is also trained under the same curriculum latency schedule as B and C. If Condition A is trained with zero latency while B and C are trained with curriculum latency, you are testing "adaptation to latency" rather than "architectural robustness to latency." To truly measure the benefit of the architecture, all models should face the same environment dynamics during training.\n\n4. **Hyperparameter Sensitivity**: Since GRUs introduce more parameters and different training dynamics (e.g., gradient clipping is often necessary for RNNs to prevent exploding gradients), ensure that the learning rate and gradient clipping are tuned or kept consistent to avoid the GRU failing simply due to optimization instability rather than architectural limitations.\n\n5. **Statistical Significance**: Given the high-dimensional nature of RL and the variance inherent in MuJoCo, consider running at least 3 random seeds per condition instead of just 1. This will provide error bars (standard deviation) on your learning curves, which is critical for claiming that one architecture is superior to another.' additional_kwargs={} response_metadata={} id='2af8c76a-5f77-430b-8926-2b69f1895a3d'
+
+
+
+        Suggestion #3:
+        content='1. **Replay Buffer Handling for GRU-SAC**: Standard SAC uses an off-policy replay buffer that samples transitions independently. For GRU-based policies (Condition C), sampling independent transitions breaks the temporal dependency required for the hidden state. You should specify that the GRU-SAC implementation must use a **Sequence-based Replay Buffer** (storing trajectories or sequences of length $L$) to allow the GRU to initialize its hidden state correctly during training.\n\n2. **Evaluation Protocol Refinement**: In step 7, you mention disabling stochasticity during evaluation. To make the comparison robust, ensure you evaluate each model against a range of fixed latencies (e.g., 0, 1, 2, and 3 steps) regardless of the latency it was trained on. This will demonstrate the "generalization" of the latency-handling mechanism rather than just performance on the training curriculum.\n\n3. **Baseline Comparison**: Ensure the "Baseline" (Condition A) is also evaluated under the same latency conditions as B and C. It is important to explicitly document how the baseline performs when it encounters latency it was not trained to handle, as this provides the "performance gap" baseline for your research questions.\n\n4. **Hyperparameter Consistency**: Since GRU-SAC (Condition C) introduces recurrent dynamics, it may be more sensitive to learning rates or entropy coefficients than the MLP-based conditions. Consider adding a small step to perform a brief hyperparameter check or ensure that the entropy target (alpha) is tuned appropriately for the recurrent architecture to prevent premature convergence.\n\n5. **Statistical Significance**: Given the high-dimensional nature of RL and the stochasticity of MuJoCo, 1 random seed is insufficient for a scientific claim. Even with limited time, increasing to at least 3-5 seeds per condition is highly recommended to ensure the observed performance differences are not due to random initialization.' additional_kwargs={} response_metadata={} id='4a5a0045-829e-4dd7-b824-37be9560acd9'
+
+
+
+**Respond in this format**:
+
+\\begin{METHODS}
+<METHODS>
+\\end{METHODS}
+
+In <METHODS> put the new research methodology. Reply with the new research methodology, no preamble or comment at the very beginning (e.g. alright team...).
+
+###### PROMPT ENDS ########
+
+###### RESPONSE [model: gemini-3.1-flash-lite-preview] ########
+\begin{METHODS}
+1. **Environment Wrapper Implementation**: Develop a custom Gymnasium wrapper to simulate actuator latency. The wrapper must maintain a circular buffer of the last $N$ actions and delay the application of the agent's output to the environment by a specified number of steps. Implement a dynamic delay mechanism supporting both fixed delays and stochastic delays sampled from $\text{Uniform}(0, k)$ to facilitate the curriculum latency schedule.
+
+2. **Baseline and Architecture Setup**: Implement the Soft Actor-Critic (SAC) algorithm. 
+    - Condition A (Baseline): Standard MLP actor/critic.
+    - Condition B (History-MLP): MLP actor/critic with input augmented by the last $k=3$ actions.
+    - Condition C (GRU-SAC): Actor/critic using GRU layers to process temporal sequences.
+    - Ensure all architectures share consistent hyperparameter settings (learning rate, entropy target, batch size) and implement gradient clipping to maintain stability, particularly for the GRU-based model.
+
+3. **Replay Buffer Strategy**: Implement two types of replay buffers:
+    - Standard Replay Buffer for Conditions A and B, storing independent transitions $(s, a, r, s')$.
+    - Sequence-based Replay Buffer for Condition C, storing contiguous trajectories of length $L$ (e.g., $L=20$). This allows the GRU to maintain temporal dependencies during training updates via Truncated Backpropagation Through Time (TBPTT) without requiring the storage of hidden states.
+
+4. **Curriculum Latency Training**: Train all three conditions under an identical curriculum latency schedule to ensure a fair comparison of architectural robustness. Start with a fixed 1-step delay for the first 100,000 steps, then transition to a stochastic delay $\text{Uniform}(0, k)$ where $k$ scales linearly from 1 to 3 over the remaining 400,000 steps.
+
+5. **Experimental Rigor**: To ensure statistical significance, execute each condition across 5 independent random seeds. Monitor training performance using cumulative return and mean forward velocity.
+
+6. **Evaluation Protocol**: Conduct periodic evaluations every 10,000 environment steps. During evaluation, disable stochasticity and test each agent against a range of fixed latencies (0, 1, 2, 3, and 5 steps). This "robustness profile" will measure how well each architecture generalizes to latencies both within and outside the training curriculum.
+
+7. **Data Aggregation and Analysis**: Aggregate evaluation metrics across all seeds to generate learning curves with shaded error bars (standard deviation). Document the performance gap between the baseline and the augmented architectures.
+
+8. **Comparative Analysis**: Analyze the results to answer the research questions: determine if explicit history stacking (Condition B) or learned temporal representations (Condition C) provide superior recovery of performance, and quantify the degradation of the baseline (Condition A) as latency increases.
+\end{METHODS}
+

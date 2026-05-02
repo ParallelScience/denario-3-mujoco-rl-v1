@@ -9,7 +9,7 @@
 ---
 
 1. **Gold Standard Baseline**:
-   - Train a standard SAC agent on HalfCheetah-v4 with **zero latency** for 200,000 steps (1 seed).
+   - Train a standard SAC agent on HalfCheetah-v4 with **zero latency** for 500,000 steps (1 seed).
    - This establishes peak reachable performance without any latency, serving as the reference ceiling.
 
 2. **Environment Wrapper**:
@@ -17,20 +17,20 @@
    - Implement `ObservationAugmenter`: concatenates last k actions to the state.
    - **Fixed input dimensionality**: pad all conditions to the same observation size (77 dims = 17 state + 10 actions × 6). Condition A: pad with zeros. Condition B (k=3): 3 real actions + 7 zero-padded. Condition C (k=10): 10 real actions. All use identical MLP [256, 256].
 
-3. **Experimental Conditions** (3 conditions, 1 seed each for PoC, 200k steps):
+3. **Experimental Conditions** (3 conditions, 1 seed each for PoC, 500k steps):
    - **Condition A (Padded Baseline)**: SAC on HalfCheetah with latency curriculum, observation padded to 77 dims with zeros (no real history). Tests whether the baseline failure was due to the curriculum or the lack of history.
    - **Condition B (History k=3)**: 3-action history + zero padding → 77 dims.
    - **Condition C (History k=10)**: 10-action history → 77 dims.
 
 4. **Smooth Curriculum Latency Schedule**:
    - Steps 0–50,000: zero latency (agent learns basic locomotion first).
-   - Steps 50,000–200,000: linearly ramp maximum delay from 0 to 5 steps. At each episode start, sample delay from Uniform(0, current_max_delay).
+   - Steps 50,000–500,000: linearly ramp maximum delay from 0 to 5 steps. At each episode start, sample delay from Uniform(0, current_max_delay).
    - Implement via SB3 `BaseCallback`.
 
 5. **Training Protocol**:
    - Train all 4 conditions (Gold Standard + A + B + C) using `stable_baselines3.SAC` with `device='cuda'`.
-   - 200,000 steps each, 1 seed.
-   - Use `EvalCallback` (zero-latency eval env) every 10,000 steps to track learning progress.
+   - 500,000 steps each, 1 seed.
+   - Use `EvalCallback` (zero-latency eval env) every 20,000 steps to track learning progress.
    - Save each trained model.
 
 6. **Robustness Evaluation**:

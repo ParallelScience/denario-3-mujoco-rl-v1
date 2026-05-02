@@ -1,0 +1,63 @@
+{
+    "sub_tasks": [
+        {
+            "bullet_points": [
+                "At runtime, assert that HalfCheetah-v4 has exactly 17-dim state and 6-dim action; verify that 17 + 10×6 = 77 total dims; raise a clear error if dimensions differ",
+                "Implement `LatencyWrapper`: gymnasium wrapper maintaining a circular action buffer with a `set_delay(n)` method; the action applied at step t is the action from t-delay steps ago (integer delay only)",
+                "Implement `ObservationAugmenter`: wraps an environment and concatenates the last k actions to the state, zero-padding to exactly 77 dims total (17 state + 60 action dims); k=0 pads all 60 dims with zeros, k=3 uses 3 real actions + 42 zero-padded dims, k=10 uses all 60 action dims",
+                "Implement `CurriculumLatencyCallback` (SB3 BaseCallback): steps 0–50,000 set delay=0; steps 50,000–500,000 linearly ramp maximum delay from 0 to 5; at each episode start, sample delay from Uniform(0, current_max_delay) and floor/round to integer before calling `set_delay()`",
+                "Train **Gold Standard**: standard SAC on raw HalfCheetah-v4 (17-dim obs, no wrapper, no padding), zero latency, 500,000 steps, device='cuda', verbose=0, progress_bar=False",
+                "Train **Condition A (Padded Baseline)**: SAC with LatencyWrapper + ObservationAugmenter(k=0) → 77-dim obs, curriculum latency callback, 500,000 steps; EvalCallback every 20,000 steps using a zero-latency eval env with ObservationAugmenter(k=0) applied (same 77-dim obs space)",
+                "Train **Condition B (History k=3)**: SAC with LatencyWrapper + ObservationAugmenter(k=3) → 77-dim obs, curriculum latency callback, 500,000 steps; EvalCallback every 20,000 steps using zero-latency eval env with ObservationAugmenter(k=3)",
+                "Train **Condition C (History k=10)**: SAC with LatencyWrapper + ObservationAugmenter(k=10) → 77-dim obs, curriculum latency callback, 500,000 steps; EvalCallback every 20,000 steps using zero-latency eval env with ObservationAugmenter(k=10)",
+                "Use verbose=0 and progress_bar=False for all model.learn() calls; print only the final evaluation return per condition",
+                "Save all four trained models to disk; save training evaluation logs (timesteps + mean rewards) as CSV files for each condition"
+            ],
+            "sub_task": "Implement environment wrappers and train all four SAC conditions",
+            "sub_task_agent": "engineer",
+            "code_execution_timeout": 1800
+        },
+        {
+            "bullet_points": [
+                "Load all four trained SAC models from disk",
+                "Evaluate at fixed latency levels: 0, 1, 2, 3, 5 steps; run 10 deterministic episodes per (model, latency) pair",
+                "**Gold Standard evaluation**: use LatencyWrapper only (no ObservationAugmenter, 17-dim obs matching training) at each latency level; this shows how the zero-latency-trained policy degrades under delay",
+                "**Condition A evaluation**: use LatencyWrapper + ObservationAugmenter(k=0) → 77-dim obs at each latency level",
+                "**Condition B evaluation**: use LatencyWrapper + ObservationAugmenter(k=3) → 77-dim obs at each latency level",
+                "**Condition C evaluation**: use LatencyWrapper + ObservationAugmenter(k=10) → 77-dim obs at each latency level",
+                "Record mean episode return and standard deviation for each (condition, latency) pair",
+                "Save robustness results to disk as a CSV file",
+                "Print a full formatted table: condition × latency level → mean return ± std"
+            ],
+            "sub_task": "Run robustness evaluation of all trained models across fixed latency levels",
+            "sub_task_agent": "engineer",
+            "code_execution_timeout": 300
+        },
+        {
+            "bullet_points": [
+                "Load training evaluation logs and robustness evaluation results from disk",
+                "**Plot 1 (Learning Curves)**: single combined figure showing mean episode return vs. training timesteps for all four conditions; include a vertical dashed line at step 50,000 to mark the onset of the curriculum latency ramp; add grid lines, clear legend, axis labels (x: Training Steps, y: Mean Episode Return)",
+                "**Plot 2 (Robustness Profile)**: single figure showing mean episode return vs. latency level (0, 1, 2, 3, 5 steps) for all four conditions; draw the Gold Standard's zero-latency return as a horizontal dashed reference line; include error bars (std), grid lines, legend, axis labels (x: Latency (steps), y: Mean Episode Return)",
+                "Save both plots as high-resolution PNG files (dpi>=300)",
+                "Print file paths of saved plots"
+            ],
+            "sub_task": "Generate all result plots",
+            "sub_task_agent": "engineer",
+            "code_execution_timeout": 120
+        },
+        {
+            "bullet_points": [
+                "Summarize the experimental setup: four conditions (Gold Standard, Padded Baseline A, History k=3 B, History k=10 C), curriculum latency schedule (0–50k steps zero latency, 50k–500k linear ramp to max delay 5), 500,000 training steps on HalfCheetah-v4",
+                "Report and interpret the learning curves: which conditions learned fastest, which plateaued or failed, how the curriculum latency ramp (marked at step 50,000) affected learning dynamics",
+                "Report and interpret the robustness profiles: how each condition's performance degrades as latency increases from 0 to 5 steps; quantify performance gaps with specific numbers from the robustness table",
+                "Address the three key research questions: (1) Does action-history stacking recover performance lost to latency? (2) Does k=10 history provide advantage over k=3? (3) How does the padded baseline degrade under increasing delay?",
+                "Quantify the \"cost of robustness\": performance gap between Gold Standard and the best latency-robust condition at zero latency; discuss whether the 77-dim padded observation space (with mostly zeros for Condition A) introduces a learning difficulty confound compared to the compact 17-dim Gold Standard",
+                "Reference the generated plots by description (learning curves figure with curriculum onset marker, robustness profile figure)",
+                "Report all key numerical results from the printed console outputs (final returns, full robustness table)",
+                "Write in academic style, structured as a Results section with subsections for learning dynamics and robustness evaluation"
+            ],
+            "sub_task": "Write the full Results section of the paper",
+            "sub_task_agent": "researcher"
+        }
+    ]
+}
